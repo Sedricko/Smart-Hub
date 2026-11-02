@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Launch theme. Same as the app theme before Android 12 (see values-v31). -->
+    <style name="App.Theme.Splash" parent="App.Theme.Leanback.Browse"/>
+</resources>

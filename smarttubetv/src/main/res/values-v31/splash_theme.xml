@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ system splash: logo on a solid navy background, short orbit animation. -->
+    <style name="App.Theme.Splash" parent="App.Theme.Leanback.Browse">
+        <item name="android:windowSplashScreenBackground">#0D121F</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_orbit_animated</item>
+        <item name="android:windowSplashScreenAnimationDuration">900</item>
+    </style>
+</resources>
