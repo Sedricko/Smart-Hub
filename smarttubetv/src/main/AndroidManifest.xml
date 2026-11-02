@@ -312,6 +312,16 @@
             android:screenOrientation="unspecified"/>
 
         <!-- END Launchers -->
+        <!-- Diagnostics over adb (needs android.permission.DUMP, held only by adb/system) -->
+        <receiver
+            android:name="com.liskovsoft.smartyoutubetv2.common.misc.DiagnosticsReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="org.smarthub.app.DIAGNOSTICS" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
