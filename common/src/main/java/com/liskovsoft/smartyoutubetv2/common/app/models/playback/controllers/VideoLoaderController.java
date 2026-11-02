@@ -415,12 +415,12 @@ public class VideoLoaderController extends BasePlayerController {
         mAudioDeviceCallback = new AudioDeviceCallback() {
             @Override
             public void onAudioDevicesAdded(AudioDeviceInfo[] devices) {
-                onAudioDevicesChanged(startMs);
+                onAudioDevicesChanged(devices, startMs);
             }
 
             @Override
             public void onAudioDevicesRemoved(AudioDeviceInfo[] devices) {
-                onAudioDevicesChanged(startMs);
+                onAudioDevicesChanged(devices, startMs);
             }
         };
         audioManager.registerAudioDeviceCallback(mAudioDeviceCallback, null);
@@ -439,9 +439,23 @@ public class VideoLoaderController extends BasePlayerController {
         mAudioDeviceCallback = null;
     }
 
-    private void onAudioDevicesChanged(long registeredAtMs) {
+    private void onAudioDevicesChanged(AudioDeviceInfo[] devices, long registeredAtMs) {
         // The callback fires right after registration with the current devices: ignore that.
         if (System.currentTimeMillis() - registeredAtMs < 2_000 || getPlayer() == null) {
+            return;
+        }
+
+        // Bluetooth (and other PCM-only outputs) never use passthrough: restart only for HDMI sinks.
+        boolean hdmi = false;
+        for (AudioDeviceInfo device : devices) {
+            int type = device.getType();
+            // 9 = TYPE_HDMI, 10 = TYPE_HDMI_ARC, 29 = TYPE_HDMI_EARC (API 31)
+            if (device.isSink() && (type == 9 || type == 10 || type == 29)) {
+                hdmi = true;
+                break;
+            }
+        }
+        if (!hdmi) {
             return;
         }
 
