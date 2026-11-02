@@ -161,16 +161,16 @@ android {
     productFlavors {
         stbeta {
             applicationId "org.smarttube.beta"
-            targetSdkVersion project.properties.compileSdkVersion
+            targetSdkVersion 35 // AGP 7.4.2 cannot compile against android-35; target is independent of compileSdk
         }
         ststable {
             applicationId "org.smarttube.stable"
-            targetSdkVersion project.properties.compileSdkVersion
+            targetSdkVersion 35 // AGP 7.4.2 cannot compile against android-35; target is independent of compileSdk
         }
         stfdroid {
             applicationId "app.smarttube.fdroid"
             minSdkVersion 21
-            targetSdkVersion project.properties.compileSdkVersion
+            targetSdkVersion 35 // AGP 7.4.2 cannot compile against android-35; target is independent of compileSdk
 
             // The content of Universal apk
             ndk {
