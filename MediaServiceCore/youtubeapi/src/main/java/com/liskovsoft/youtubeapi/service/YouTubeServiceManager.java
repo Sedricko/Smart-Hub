@@ -1,5 +1,8 @@
 package com.liskovsoft.youtubeapi.service;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -26,6 +29,7 @@ import io.reactivex.disposables.Disposable;
 
 public class YouTubeServiceManager implements ServiceManager {
     private static final String TAG = YouTubeServiceManager.class.getSimpleName();
+    private static final int MAX_REFRESH_RETRIES = 3;
     private static YouTubeServiceManager sInstance;
     private Disposable mRefreshCoreDataAction;
 
@@ -125,12 +129,26 @@ public class YouTubeServiceManager implements ServiceManager {
     }
 
     private void refreshCacheIfNeededInt() {
+        refreshCacheIfNeededInt(0);
+    }
+
+    private void refreshCacheIfNeededInt(int attempt) {
         if (RxHelper.isAnyActionRunning(mRefreshCoreDataAction)) {
             return;
         }
 
-        mRefreshCoreDataAction =
-                RxHelper.execute(RxHelper.fromRunnable(() -> getAppService().refreshCacheIfNeeded(getVideoInfoService().getClient())));
+        mRefreshCoreDataAction = RxHelper.execute(
+                RxHelper.fromRunnable(() -> getAppService().refreshCacheIfNeeded(getVideoInfoService().getClient())),
+                error -> {
+                    Log.e(TAG, "Core data refresh failed (attempt %s): %s", attempt + 1, error.getMessage());
+
+                    // A transient failure (e.g. DNS not ready right after the start) must not leave the
+                    // first video to load this data on its own: try again a few times.
+                    if (attempt < MAX_REFRESH_RETRIES) {
+                        new Handler(Looper.getMainLooper()).postDelayed(
+                                () -> refreshCacheIfNeededInt(attempt + 1), 15_000L * (attempt + 1));
+                    }
+                });
     }
 
     @NonNull
