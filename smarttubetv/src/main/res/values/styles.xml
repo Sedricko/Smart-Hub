@@ -257,10 +257,12 @@
         <item name="brandColor">@color/scheme_hub_background</item>
         <item name="shelfBackground">@color/scheme_hub_shelf</item>
         <item name="cardDefaultBackground">@color/scheme_hub_card</item>
+        <item name="cardSelectedBackground">@color/scheme_hub_card_selected</item>
     </style>
     <style name="App.Theme.SmartHub.Player" parent="App.Theme.Leanback.Player">
         <item name="shelfBackground">@color/scheme_hub_shelf</item>
         <item name="cardDefaultBackground">@color/scheme_hub_card</item>
+        <item name="cardSelectedBackground">@color/scheme_hub_card_selected</item>
         <item name="android:colorAccent" tools:targetApi="21">@color/scheme_hub_accent</item>
     </style>
     <style name="App.Theme.SmartHub.Preferences" parent="App.Theme.Leanback.Preferences">
@@ -302,6 +304,7 @@
         <item name="brandColor">@color/scheme_hub_light_background</item>
         <item name="shelfBackground">@color/scheme_hub_light_shelf</item>
         <item name="cardDefaultBackground">@color/scheme_hub_light_card</item>
+        <item name="cardSelectedBackground">@color/scheme_hub_light_card_selected</item>
         <item name="android:textColorPrimary">@color/scheme_hub_light_text</item>
         <item name="android:textColorSecondary">@color/scheme_hub_light_text_muted</item>
         <item name="rowHeaderStyle">@style/App.SmartHubLight.RowHeader</item>
@@ -312,6 +315,7 @@
     <style name="App.Theme.SmartHubLight.Player" parent="App.Theme.Leanback.Player">
         <item name="shelfBackground">@color/scheme_hub_light_shelf</item>
         <item name="cardDefaultBackground">@color/scheme_hub_light_card</item>
+        <item name="cardSelectedBackground">@color/scheme_hub_light_card_selected</item>
         <item name="android:colorAccent" tools:targetApi="21">@color/scheme_hub_light_accent</item>
     </style>
     <style name="App.Theme.SmartHubLight.Preferences" parent="App.Theme.Leanback.Preferences">

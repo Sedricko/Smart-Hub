@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -48,8 +49,9 @@ public class ChannelCardPresenter extends LongClickPresenter {
                 ContextCompat.getColor(context, R.color.dark_red);
         mSelectedBackgroundColor =
                 ContextCompat.getColor(context, Helpers.getThemeAttr(context, R.attr.cardSelectedBackground));
-        mSelectedTextColor =
-                ContextCompat.getColor(context, R.color.card_selected_text_grey);
+        // Dark selected background (Smart Hub schemes) needs light text; light background keeps the dark grey text
+        mSelectedTextColor = ColorUtils.calculateLuminance(mSelectedBackgroundColor) < 0.5 ?
+                mDefaultTextColor : ContextCompat.getColor(context, R.color.card_selected_text_grey);
 
         updateDimensions(context);
 

@@ -78,6 +78,8 @@
     <color name="scheme_hub_light_background">#FFFFFF</color>
     <color name="scheme_hub_light_shelf">#F0F4FA</color>
     <color name="scheme_hub_light_card">#FFFFFF</color>
+    <color name="scheme_hub_card_selected">#2B3B63</color>
+    <color name="scheme_hub_light_card_selected">#DCF0EC</color>
     <color name="scheme_hub_light_text">#0F172A</color>
     <color name="scheme_hub_light_text_muted">#5A6880</color>
 </resources>

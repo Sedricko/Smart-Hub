@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.leanback.widget.Presenter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -54,8 +55,9 @@ public class VideoCardPresenter extends LongClickPresenter {
                 ContextCompat.getColor(context, R.color.card_default_text);
         mSelectedBackgroundColor =
                 ContextCompat.getColor(context, Helpers.getThemeAttr(context, R.attr.cardSelectedBackground));
-        mSelectedTextColor =
-                ContextCompat.getColor(context, R.color.card_selected_text_grey);
+        // Dark selected background (Smart Hub schemes) needs light text; light background keeps the dark grey text
+        mSelectedTextColor = ColorUtils.calculateLuminance(mSelectedBackgroundColor) < 0.5 ?
+                mDefaultTextColor : ContextCompat.getColor(context, R.color.card_selected_text_grey);
 
         mCardPreviewType = getCardPreviewType(context);
         mThumbQuality = getThumbQuality(context);
