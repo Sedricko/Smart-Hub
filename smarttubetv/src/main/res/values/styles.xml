@@ -268,4 +268,54 @@
         <item name="android:colorPrimary" tools:targetApi="21">@color/scheme_hub_background</item>
     </style>
     <!--  End Color scheme: Smart Hub  -->
+
+    <!--  Color scheme: Smart Hub (light, experimental)  -->
+    <style name="App.SmartHubLight.RowHeaderText" parent="TextAppearance.Leanback.Row.Header">
+        <item name="android:textColor">@color/scheme_hub_light_text</item>
+    </style>
+    <style name="App.SmartHubLight.RowHeader" parent="Widget.Leanback.Row.Header">
+        <item name="android:textAppearance">@style/App.SmartHubLight.RowHeaderText</item>
+    </style>
+    <style name="App.SmartHubLight.HeaderText" parent="TextAppearance.Leanback.Header">
+        <item name="android:textColor">@color/scheme_hub_light_text</item>
+    </style>
+    <style name="App.SmartHubLight.Header" parent="Widget.Leanback.Header">
+        <item name="android:textAppearance">@style/App.SmartHubLight.HeaderText</item>
+    </style>
+    <style name="App.SmartHubLight.CardTitleText" parent="TextAppearance.Leanback.ImageCardView.Title">
+        <item name="android:textColor">@color/scheme_hub_light_text</item>
+    </style>
+    <style name="App.SmartHubLight.CardTitle" parent="Widget.Leanback.ImageCardView.Title">
+        <item name="android:textAppearance">@style/App.SmartHubLight.CardTitleText</item>
+    </style>
+    <style name="App.SmartHubLight.CardContentText" parent="TextAppearance.Leanback.ImageCardView.Content">
+        <item name="android:textColor">@color/scheme_hub_light_text_muted</item>
+    </style>
+    <style name="App.SmartHubLight.CardContent" parent="Widget.Leanback.ImageCardView.Content">
+        <item name="android:textAppearance">@style/App.SmartHubLight.CardContentText</item>
+    </style>
+    <style name="App.Theme.SmartHubLight.Browse" parent="App.Theme.Leanback.Browse">
+        <item name="brandAccentColor">@color/scheme_hub_light_accent</item>
+        <item name="android:colorAccent" tools:targetApi="21">@color/scheme_hub_light_accent</item>
+        <item name="android:windowBackground">@color/scheme_hub_light_shelf</item>
+        <item name="brandColor">@color/scheme_hub_light_background</item>
+        <item name="shelfBackground">@color/scheme_hub_light_shelf</item>
+        <item name="cardDefaultBackground">@color/scheme_hub_light_card</item>
+        <item name="android:textColorPrimary">@color/scheme_hub_light_text</item>
+        <item name="android:textColorSecondary">@color/scheme_hub_light_text_muted</item>
+        <item name="rowHeaderStyle">@style/App.SmartHubLight.RowHeader</item>
+        <item name="headerStyle">@style/App.SmartHubLight.Header</item>
+        <item name="imageCardViewTitleStyle">@style/App.SmartHubLight.CardTitle</item>
+        <item name="imageCardViewContentStyle">@style/App.SmartHubLight.CardContent</item>
+    </style>
+    <style name="App.Theme.SmartHubLight.Player" parent="App.Theme.Leanback.Player">
+        <item name="shelfBackground">@color/scheme_hub_light_shelf</item>
+        <item name="cardDefaultBackground">@color/scheme_hub_light_card</item>
+        <item name="android:colorAccent" tools:targetApi="21">@color/scheme_hub_light_accent</item>
+    </style>
+    <style name="App.Theme.SmartHubLight.Preferences" parent="App.Theme.Leanback.Preferences">
+        <item name="android:colorAccent" tools:targetApi="21">@color/scheme_hub_light_accent</item>
+        <item name="android:colorPrimary" tools:targetApi="21">@color/scheme_hub_light_background</item>
+    </style>
+    <!--  End Color scheme: Smart Hub (light)  -->
 </resources>

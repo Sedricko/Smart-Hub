@@ -761,5 +761,6 @@
         <item quantity="one">%s second</item>
         <item quantity="other">%s seconds</item>
     </plurals>
-    <string name="color_scheme_smart_hub" translatable="false">Smart Hub</string>
+    <string name="color_scheme_smart_hub" translatable="false">Smart Hub (escuro)</string>
+    <string name="color_scheme_smart_hub_light" translatable="false">Smart Hub (claro)</string>
 </resources>

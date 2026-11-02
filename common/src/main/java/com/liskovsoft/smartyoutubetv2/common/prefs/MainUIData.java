@@ -422,6 +422,12 @@ public class MainUIData extends DataChangeBase implements ProfileChangeListener 
                 "App.Theme.Leanback.Blue.Preferences",
                 mContext));
         mColorSchemes.add(new ColorScheme(
+                R.string.color_scheme_smart_hub_light,
+                "App.Theme.SmartHubLight.Player",
+                "App.Theme.SmartHubLight.Browse",
+                "App.Theme.SmartHubLight.Preferences",
+                mContext));
+        mColorSchemes.add(new ColorScheme(
                 R.string.color_scheme_smart_hub,
                 "App.Theme.SmartHub.Player",
                 "App.Theme.SmartHub.Browse",
