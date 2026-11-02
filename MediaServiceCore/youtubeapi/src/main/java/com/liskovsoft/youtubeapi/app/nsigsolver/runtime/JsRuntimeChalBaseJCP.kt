@@ -19,7 +19,6 @@ internal abstract class JsRuntimeChalBaseJCP: JsChallengeProvider() {
     protected val cacheSection = "challenge-solver"
 
     private val jcpGuideUrl = "https://github.com/yt-dlp/yt-dlp/wiki/YouTube-JS-Challenges"
-    private val repository = "yt-dlp/ejs"
     override val supportedTypes = listOf(JsChallengeType.N, JsChallengeType.SIG)
     protected val scriptVersion = "0.0.1"
     protected val libPrefix = "nsigsolver/"
@@ -147,8 +146,7 @@ internal abstract class JsRuntimeChalBaseJCP: JsChallengeProvider() {
     protected open fun iterScriptSources(): Sequence<Pair<ScriptSource, (scriptType: ScriptType) -> Script?>> = sequence {
         yieldAll(listOf(
             Pair(ScriptSource.CACHE, ::cachedSource),
-            Pair(ScriptSource.BUILTIN, ::builtinSource),
-            Pair(ScriptSource.WEB, ::webReleaseSource)
+            Pair(ScriptSource.BUILTIN, ::builtinSource)
         ))
     }
 
@@ -164,14 +162,6 @@ internal abstract class JsRuntimeChalBaseJCP: JsChallengeProvider() {
         return Script(scriptType, ScriptVariant.UNMINIFIED, ScriptSource.BUILTIN, scriptVersion, code)
     }
 
-    private fun webReleaseSource(scriptType: ScriptType): Script? {
-        val fileName = minScriptFilenames[scriptType] ?: return null
-        val url = "https://github.com/$repository/releases/download/$scriptVersion/$fileName"
-        val code = ie.downloadWebpageWithRetries(url, "[${tag}] Failed to download challenge solver ${scriptType.value} script")
-        Log.d(tag, "[${tag}] Downloading challenge solver ${scriptType.value} script from $url")
-        ie.cache.store(cacheSection, scriptType.value, CachedData(code))
-        return Script(scriptType, ScriptVariant.MINIFIED, ScriptSource.WEB, scriptVersion, code)
-    }
 
     // endregion: challenge solver script
 }

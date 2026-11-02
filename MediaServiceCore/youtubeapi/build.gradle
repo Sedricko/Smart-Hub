@@ -18,6 +18,12 @@ android {
         versionCode 15
         versionName "0.1.5"
 
+        // Google API credentials: provided at build time, never committed
+        def cfg = { String name -> (System.getenv(name) ?: (project.findProperty(name) ?: '')).toString().replace('"', '') }
+        buildConfigField "String", "GOOGLE_CLIENT_ID", "\"${cfg('GOOGLE_CLIENT_ID')}\""
+        buildConfigField "String", "GOOGLE_CLIENT_SECRET", "\"${cfg('GOOGLE_CLIENT_SECRET')}\""
+        buildConfigField "String", "YOUTUBE_DATA_API_KEY", "\"${cfg('YOUTUBE_DATA_API_KEY')}\""
+
         // required for androidTest support
         // more info: https://developer.android.com/training/testing/unit-testing/instrumented-unit-tests
         // small tests: https://stackoverflow.com/questions/4671923/what-is-the-purpose-of-smalltest-mediumtest-and-largetest-annotations-in-an

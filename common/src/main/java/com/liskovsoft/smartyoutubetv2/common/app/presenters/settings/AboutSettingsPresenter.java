@@ -12,8 +12,6 @@ import com.liskovsoft.smartyoutubetv2.common.R;
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.ui.OptionItem;
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.ui.UiOptionItem;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.AppDialogPresenter;
-import com.liskovsoft.smartyoutubetv2.common.app.presenters.dialogs.ATVBridgePresenter;
-import com.liskovsoft.smartyoutubetv2.common.app.presenters.dialogs.AmazonBridgePresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.dialogs.AppUpdatePresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.base.BasePresenter;
 import com.liskovsoft.smartyoutubetv2.common.misc.DiagnosticsHelper;
@@ -56,7 +54,6 @@ public class AboutSettingsPresenter extends BasePresenter<Void> {
 
         appendUpdateSource(settingsPresenter);
 
-        appendInstallBridge(settingsPresenter);
 
         appendDiagnostics(settingsPresenter);
 
@@ -246,23 +243,4 @@ public class AboutSettingsPresenter extends BasePresenter<Void> {
         }
     }
 
-    private void appendInstallBridge(AppDialogPresenter settingsPresenter) {
-        OptionItem installBridgeOption = UiOptionItem.from(
-                getContext().getString(R.string.install_bridge),
-                option -> startBridgePresenter());
-
-        settingsPresenter.appendSingleButton(installBridgeOption);
-    }
-
-    private void startBridgePresenter() {
-        MessageHelpers.showLongMessage(getContext(), R.string.enable_voice_search_desc);
-
-        ATVBridgePresenter atvPresenter = ATVBridgePresenter.instance(getContext());
-        atvPresenter.runBridgeInstaller(true);
-        atvPresenter.unhold();
-
-        AmazonBridgePresenter amazonPresenter = AmazonBridgePresenter.instance(getContext());
-        amazonPresenter.runBridgeInstaller(true);
-        amazonPresenter.unhold();
-    }
 }
