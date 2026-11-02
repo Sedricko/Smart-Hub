@@ -68,4 +68,10 @@
     <color name="lb_speech_orb_not_recording">@color/orb_color</color>
     <color name="lb_speech_orb_not_recording_pulsed">@color/orb_bright_color</color>
     <color name="lb_speech_orb_not_recording_icon">@color/orb_icon_color</color>
+
+    <!-- Smart Hub color scheme -->
+    <color name="scheme_hub_accent">#14B8A6</color>
+    <color name="scheme_hub_background">#0B1220</color>
+    <color name="scheme_hub_shelf">#080E19</color>
+    <color name="scheme_hub_card">#141E36</color>
 </resources>

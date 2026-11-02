@@ -248,4 +248,24 @@
         <item name="cardSelectedBackground">@color/card_selected_background_white_grey</item>
     </style>
     <!--  End Color scheme: Dark Blue (OLED)  -->
+
+    <!--  Color scheme: Smart Hub  -->
+    <style name="App.Theme.SmartHub.Browse" parent="App.Theme.Leanback.Browse">
+        <item name="brandAccentColor">@color/scheme_hub_accent</item>
+        <item name="android:colorAccent" tools:targetApi="21">@color/scheme_hub_accent</item>
+        <item name="android:windowBackground">@color/scheme_hub_shelf</item>
+        <item name="brandColor">@color/scheme_hub_background</item>
+        <item name="shelfBackground">@color/scheme_hub_shelf</item>
+        <item name="cardDefaultBackground">@color/scheme_hub_card</item>
+    </style>
+    <style name="App.Theme.SmartHub.Player" parent="App.Theme.Leanback.Player">
+        <item name="shelfBackground">@color/scheme_hub_shelf</item>
+        <item name="cardDefaultBackground">@color/scheme_hub_card</item>
+        <item name="android:colorAccent" tools:targetApi="21">@color/scheme_hub_accent</item>
+    </style>
+    <style name="App.Theme.SmartHub.Preferences" parent="App.Theme.Leanback.Preferences">
+        <item name="android:colorAccent" tools:targetApi="21">@color/scheme_hub_accent</item>
+        <item name="android:colorPrimary" tools:targetApi="21">@color/scheme_hub_background</item>
+    </style>
+    <!--  End Color scheme: Smart Hub  -->
 </resources>
