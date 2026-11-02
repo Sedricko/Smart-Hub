@@ -57,7 +57,7 @@ jobs:
           python3 - "$VERSION" "$CODE" "$BASE" "$D" <<'PY'
           import json,os,sys
           ver,code,base,d=sys.argv[1:5]
-          apk=lambda abi: f"{base}/SmartTube_beta_{ver}_{abi}.apk"
+          apk=lambda abi: f"{base}/SmartHub_beta_{ver}_{abi}.apk"
           m={"package":{
               "downloadUrl":apk("universal"),
               "downloadUrlList_arm64-v8a":[apk("arm64-v8a")],
