@@ -10,7 +10,7 @@ permissions:
 jobs:
   shots:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     steps:
       - name: Checkout Code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -33,18 +33,28 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleStbetaDebug
 
-      - name: Create and start the TV emulator
+      - name: Create and start the emulator (phone image, TV-sized screen)
         run: |
           export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
           yes | sdkmanager --licenses > /dev/null
-          sdkmanager "emulator" "system-images;android-34;android-tv;x86" > /dev/null
-          echo no | avdmanager create avd -n tv -k "system-images;android-34;android-tv;x86" -d tv_1080p --force
-          nohup emulator -avd tv -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -memory 3072 > emulator.log 2>&1 &
+          sdkmanager "emulator" "system-images;android-34;google_apis;x86_64" > /dev/null
+          echo no | avdmanager create avd -n tv -k "system-images;android-34;google_apis;x86_64" -d pixel_6 --force
+          nohup emulator -avd tv -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -memory 3072 -accel on > emulator.log 2>&1 &
           adb wait-for-device
-          until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; do sleep 5; done
+          # Wait for boot, but never more than 10 minutes
+          for i in $(seq 1 120); do
+            [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ] && break
+            sleep 5
+          done
+          [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ] || { echo "::error::Emulator did not boot"; tail -n 60 emulator.log; exit 1; }
           adb shell settings put global window_animation_scale 0
           adb shell settings put global transition_animation_scale 0
           adb shell settings put global animator_duration_scale 0
+          # Pretend to be a 1080p TV in landscape
+          adb shell wm size 1920x1080
+          adb shell wm density 240
+          adb shell settings put system accelerometer_rotation 0
+          adb shell settings put system user_rotation 1
 
       - name: Install the app and take screenshots
         run: |
@@ -55,7 +65,7 @@ jobs:
 
           APK=$(ls smarttubetv/build/outputs/apk/stbeta/debug/*universal*.apk | head -n 1)
           adb install -r -g "$APK"
-          adb shell monkey -p org.smarthub.app -c android.intent.category.LEANBACK_LAUNCHER 1
+          adb shell am start -n org.smarthub.app/com.liskovsoft.smartyoutubetv2.tv.ui.main.SplashActivity
           sleep 45
           shot 01_abertura
 
