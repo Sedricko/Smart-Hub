@@ -14,6 +14,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.util.AmazonQuirks;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.liskovsoft.smartyoutubetv2.common.exoplayer.versions.selector.BlacklistMediaCodecSelector;
+import com.liskovsoft.smartyoutubetv2.common.exoplayer.versions.selector.DenyListMediaCodecSelector;
 import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerTweaksData;
 
@@ -46,6 +47,8 @@ public class CustomOverridesRenderersFactory extends CustomRenderersFactoryBase 
 
         if (mPlayerTweaksData.isSWDecoderForced()) {
             setMediaCodecSelector(new BlacklistMediaCodecSelector());
+        } else {
+            setMediaCodecSelector(new DenyListMediaCodecSelector());
         }
 
         AmazonQuirks.disableSnappingToVsync(mPlayerTweaksData.isSnappingToVsyncDisabled());

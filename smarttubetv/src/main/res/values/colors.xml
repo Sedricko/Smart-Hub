@@ -6,8 +6,8 @@
     <!-- Common colors -->
     <color name="default_background_gradient_start">#000000</color>
     <color name="default_background_gradient_end">#DDDDDD</color>
-    <color name="fastlane_background">#0096a6</color>
-    <color name="fastlane_background_dark">#004B53</color>
+    <color name="fastlane_background">#14B8A6</color>
+    <color name="fastlane_background_dark">#1E1B4B</color>
     <color name="default_light_grey">#343434</color>
     <color name="search_opaque">#0096a6</color>
     <color name="search_opaque_yellow">#ffaa3f</color>
@@ -48,9 +48,9 @@
 
     <!-- Vineyard -->
     <color name="black_87pc">#77000000</color>
-    <color name="primary_dark">#00796B</color>
-    <color name="primary_light">#B2DFDB</color>
-    <color name="primary">#009688</color>
+    <color name="primary_dark">#0F766E</color>
+    <color name="primary_light">#99F6E4</color>
+    <color name="primary">#14B8A6</color>
     <color name="white_87pc">#DDFFFFFF</color>
 
     <!-- Tooltip mod: extracted private values -->
