@@ -1,5 +1,9 @@
 package com.liskovsoft.smartyoutubetv2.common.app.models.playback.controllers;
 
+import android.content.Context;
+import android.media.AudioDeviceCallback;
+import android.media.AudioDeviceInfo;
+import android.media.AudioManager;
 import android.os.Build.VERSION;
 
 import com.liskovsoft.mediaserviceinterfaces.MediaItemService;
@@ -102,10 +106,12 @@ public class VideoLoaderController extends BasePlayerController {
         loadVideo(Helpers.firstNonNull(mPendingVideo, getVideo()));
         getPlayer().setButtonState(R.id.action_repeat, getPlayerData().getPlaybackMode());
         mPendingVideo = null;
+        registerAudioDeviceCallback();
     }
 
     @Override
     public void onEngineReleased() {
+        unregisterAudioDeviceCallback();
         disposeActions();
     }
 
@@ -388,6 +394,60 @@ public class VideoLoaderController extends BasePlayerController {
 
     public void restartEngine() {
         restartEngine(1_000);
+    }
+
+    // HDMI/ARC/BT sink changes: restart so the audio sink renegotiates passthrough (as YouTube TV does).
+    private AudioDeviceCallback mAudioDeviceCallback;
+
+    private void registerAudioDeviceCallback() {
+        unregisterAudioDeviceCallback();
+
+        if (VERSION.SDK_INT < 23 || getContext() == null) {
+            return;
+        }
+
+        AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager == null) {
+            return;
+        }
+
+        final long startMs = System.currentTimeMillis();
+        mAudioDeviceCallback = new AudioDeviceCallback() {
+            @Override
+            public void onAudioDevicesAdded(AudioDeviceInfo[] devices) {
+                onAudioDevicesChanged(startMs);
+            }
+
+            @Override
+            public void onAudioDevicesRemoved(AudioDeviceInfo[] devices) {
+                onAudioDevicesChanged(startMs);
+            }
+        };
+        audioManager.registerAudioDeviceCallback(mAudioDeviceCallback, null);
+    }
+
+    private void unregisterAudioDeviceCallback() {
+        if (mAudioDeviceCallback == null || getContext() == null) {
+            mAudioDeviceCallback = null;
+            return;
+        }
+
+        AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager != null) {
+            audioManager.unregisterAudioDeviceCallback(mAudioDeviceCallback);
+        }
+        mAudioDeviceCallback = null;
+    }
+
+    private void onAudioDevicesChanged(long registeredAtMs) {
+        // The callback fires right after registration with the current devices: ignore that.
+        if (System.currentTimeMillis() - registeredAtMs < 2_000 || getPlayer() == null) {
+            return;
+        }
+
+        Log.d(TAG, "Audio output changed. Restarting the engine to renegotiate passthrough...");
+        Utils.removeCallbacks(mRestartEngine);
+        restartEngine();
     }
 
     public void reloadVideo() {
