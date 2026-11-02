@@ -296,6 +296,7 @@
     </style>
     <style name="App.Theme.SmartHubLight.Browse" parent="App.Theme.Leanback.Browse">
         <item name="brandAccentColor">@color/scheme_hub_light_accent</item>
+        <item name="appLogo">@mipmap/app_logo_light</item>
         <item name="android:colorAccent" tools:targetApi="21">@color/scheme_hub_light_accent</item>
         <item name="android:windowBackground">@color/scheme_hub_light_shelf</item>
         <item name="brandColor">@color/scheme_hub_light_background</item>
