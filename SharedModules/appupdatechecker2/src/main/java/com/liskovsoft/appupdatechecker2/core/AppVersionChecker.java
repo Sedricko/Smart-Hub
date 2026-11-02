@@ -262,7 +262,7 @@ public class AppVersionChecker {
             } catch (final Exception ex) {
                 // IllegalStateException | IllegalArgumentException | JSONException | SocketTimeoutException |
                 // SocketException | StreamResetException | SSLException | ProtocolException
-                Log.e(TAG, ex.getMessage(), ex);
+                Log.w(TAG, "Update manifest unavailable: " + ex);
                 mLastException = ex;
             } finally {
                 publishProgress(100);

@@ -414,7 +414,10 @@ public final class DiagnosticsHelper {
             if (hardware != null) {
                 lines.add(line("OK", codec[0] + ": hardware (" + hardware + ")"));
             } else if (software != null) {
-                lines.add(line("ALERTA", codec[0] + ": só por software (" + software + "), pode travar em alta resolução"));
+                // AV1 is optional: the player falls back to VP9/H.264 (hardware on most TV boxes)
+                lines.add("AV1".equals(codec[0])
+                        ? line("INFO", codec[0] + ": só por software (" + software + "), o app usa VP9 ou H.264 por hardware")
+                        : line("ALERTA", codec[0] + ": só por software (" + software + "), pode travar em alta resolução"));
             } else {
                 lines.add(line("INFO", codec[0] + ": não suportado neste aparelho"));
             }
