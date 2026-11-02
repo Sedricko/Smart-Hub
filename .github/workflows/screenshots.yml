@@ -40,7 +40,7 @@ jobs:
           sdkmanager "emulator" "system-images;android-34;google_apis;x86_64" > /dev/null
           echo no | avdmanager create avd -n tv -k "system-images;android-34;google_apis;x86_64" -d pixel_6 --force
           nohup emulator -avd tv -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -memory 3072 -accel on > emulator.log 2>&1 &
-          adb wait-for-device
+          timeout 180 adb wait-for-device || { echo "::error::Emulator did not show up"; tail -n 80 emulator.log; exit 1; }
           # Wait for boot, but never more than 10 minutes
           for i in $(seq 1 120); do
             [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ] && break
