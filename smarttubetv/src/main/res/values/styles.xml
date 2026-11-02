@@ -285,13 +285,13 @@
     <style name="App.SmartHubLight.CardTitleText" parent="TextAppearance.Leanback.ImageCardView.Title">
         <item name="android:textColor">@color/scheme_hub_light_text</item>
     </style>
-    <style name="App.SmartHubLight.CardTitle" parent="Widget.Leanback.ImageCardView.Title">
+    <style name="App.SmartHubLight.CardTitle" parent="Widget.Leanback.ImageCardView.TitleStyle">
         <item name="android:textAppearance">@style/App.SmartHubLight.CardTitleText</item>
     </style>
     <style name="App.SmartHubLight.CardContentText" parent="TextAppearance.Leanback.ImageCardView.Content">
         <item name="android:textColor">@color/scheme_hub_light_text_muted</item>
     </style>
-    <style name="App.SmartHubLight.CardContent" parent="Widget.Leanback.ImageCardView.Content">
+    <style name="App.SmartHubLight.CardContent" parent="Widget.Leanback.ImageCardView.ContentStyle">
         <item name="android:textAppearance">@style/App.SmartHubLight.CardContentText</item>
     </style>
     <style name="App.Theme.SmartHubLight.Browse" parent="App.Theme.Leanback.Browse">
