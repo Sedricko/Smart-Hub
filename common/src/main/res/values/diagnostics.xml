@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="diag_title" translatable="false">Diagnóstico</string>
+    <string name="diag_run_checks" translatable="false">Testes rápidos do sistema</string>
+    <string name="diag_share_report" translatable="false">Gerar relatório (salvar e copiar)</string>
+    <string name="diag_clear" translatable="false">Limpar registros agora</string>
+    <string name="diag_running" translatable="false">Executando testes...</string>
+    <string name="diag_cleared" translatable="false">Registros apagados</string>
+    <string name="diag_checks_title" translatable="false">Resultado dos testes</string>
+    <string name="diag_report_title" translatable="false">Relatório gerado</string>
+</resources>

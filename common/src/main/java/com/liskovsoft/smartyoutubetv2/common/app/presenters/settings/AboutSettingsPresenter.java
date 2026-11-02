@@ -1,6 +1,8 @@
 package com.liskovsoft.smartyoutubetv2.common.app.presenters.settings;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import com.liskovsoft.appupdatechecker2.AppUpdateChecker;
 import com.liskovsoft.sharedutils.helpers.AppInfoHelpers;
 import com.liskovsoft.sharedutils.helpers.Helpers;
@@ -14,9 +16,11 @@ import com.liskovsoft.smartyoutubetv2.common.app.presenters.dialogs.ATVBridgePre
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.dialogs.AmazonBridgePresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.dialogs.AppUpdatePresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.base.BasePresenter;
+import com.liskovsoft.smartyoutubetv2.common.misc.DiagnosticsHelper;
 import com.liskovsoft.smartyoutubetv2.common.prefs.GeneralData;
 import com.liskovsoft.smartyoutubetv2.common.utils.Utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +58,8 @@ public class AboutSettingsPresenter extends BasePresenter<Void> {
 
         appendInstallBridge(settingsPresenter);
 
+        appendDiagnostics(settingsPresenter);
+
         if (!Helpers.equalsAny(country, "RU", "UA")) {
             appendDonation(settingsPresenter);
             appendFeedback(settingsPresenter);
@@ -61,6 +67,64 @@ public class AboutSettingsPresenter extends BasePresenter<Void> {
         }
 
         settingsPresenter.showDialog(mainTitle);
+    }
+
+    private void appendDiagnostics(AppDialogPresenter settingsPresenter) {
+        List<OptionItem> options = new ArrayList<>();
+
+        options.add(UiOptionItem.from(getContext().getString(R.string.diag_run_checks), option -> runDiagnosticsChecks()));
+        options.add(UiOptionItem.from(getContext().getString(R.string.diag_share_report), option -> shareDiagnosticsReport()));
+        options.add(UiOptionItem.from(getContext().getString(R.string.diag_clear), option -> {
+            DiagnosticsHelper.clearAll(getContext());
+            MessageHelpers.showMessage(getContext(), R.string.diag_cleared);
+        }));
+
+        settingsPresenter.appendStringsCategory(getContext().getString(R.string.diag_title), options);
+    }
+
+    private void runDiagnosticsChecks() {
+        MessageHelpers.showMessage(getContext(), R.string.diag_running);
+        DiagnosticsHelper.runChecks(getContext(), lines -> showDiagnosticsDialog(getContext().getString(R.string.diag_checks_title), lines));
+    }
+
+    private void shareDiagnosticsReport() {
+        final Context context = getContext();
+        MessageHelpers.showMessage(context, R.string.diag_running);
+
+        DiagnosticsHelper.runChecks(context, checks -> new Thread(() -> {
+            // Reading the system log is slow: keep it off the main thread
+            final String report = DiagnosticsHelper.buildReport(context, checks);
+            final File file = DiagnosticsHelper.saveReport(context, report);
+
+            new Handler(Looper.getMainLooper()).post(() -> {
+                boolean copied = DiagnosticsHelper.copyToClipboard(context, report);
+                List<String> lines = new ArrayList<>(checks);
+                lines.add("");
+                lines.add(file != null ? "Relatório salvo em: " + file.getAbsolutePath() : "Não consegui salvar o arquivo");
+                lines.add(copied ? "Copiado para a área de transferência" : "Não consegui copiar para a área de transferência");
+
+                if (file != null) {
+                    lines.add("Pelo computador: adb pull " + file.getAbsolutePath());
+                    lines.add("Ou ver na tela: adb shell cat " + file.getAbsolutePath());
+                }
+
+                showDiagnosticsDialog(context.getString(R.string.diag_report_title), lines);
+            });
+        }, "DiagnosticsReport").start());
+    }
+
+    private void showDiagnosticsDialog(String title, List<String> lines) {
+        List<OptionItem> items = new ArrayList<>();
+
+        for (String line : lines) {
+            if (!line.isEmpty()) {
+                items.add(UiOptionItem.from(line));
+            }
+        }
+
+        AppDialogPresenter dialog = AppDialogPresenter.instance(getContext());
+        dialog.appendStringsCategory(title, items);
+        dialog.showDialog(title);
     }
 
     private void appendAutoUpdateSwitch(AppDialogPresenter settingsPresenter) {

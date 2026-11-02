@@ -37,6 +37,8 @@ import com.liskovsoft.smartyoutubetv2.tv.ui.webbrowser.WebBrowserActivity;
 
 import org.conscrypt.Conscrypt;
 
+import com.liskovsoft.smartyoutubetv2.common.misc.DiagnosticsHelper;
+
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.security.Provider;
 import java.security.Security;
@@ -85,6 +87,9 @@ public class MainApplication extends MultiDexApplication implements Configuratio
 
         setupGlobalExceptionHandler();
         setupViewManager();
+
+        // Drop diagnostic files older than 24h
+        new Thread(() -> DiagnosticsHelper.cleanup(this), "DiagnosticsCleanup").start();
     }
 
     /**
@@ -151,6 +156,7 @@ public class MainApplication extends MultiDexApplication implements Configuratio
                 return;
             }
 
+            DiagnosticsHelper.saveCrash(this, t, e);
             applyCrashFixes(e);
             //e = wrapWithAdditionalInfo(e);
 
