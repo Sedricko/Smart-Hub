@@ -39,7 +39,12 @@ jobs:
           ls -l /dev/kvm || echo "::warning::no /dev/kvm"
           yes | sdkmanager --licenses > /dev/null
           sdkmanager "emulator" "system-images;android-34;google_apis;x86_64" > /dev/null
+          export ANDROID_AVD_HOME="$HOME/.android/avd"
+          mkdir -p "$ANDROID_AVD_HOME"
           echo no | avdmanager create avd -n phone -k "system-images;android-34;google_apis;x86_64" -d pixel_6 --force
+          avdmanager list avd
+          emulator -list-avds
+          ls -l "$ANDROID_AVD_HOME"
           nohup emulator -avd phone -no-window -no-audio -no-boot-anim -no-metrics -gpu swiftshader_indirect -no-snapshot -memory 3072 -accel on > emulator.log 2>&1 &
           echo $! > emu.pid
           # Wait for the device, but never forever
