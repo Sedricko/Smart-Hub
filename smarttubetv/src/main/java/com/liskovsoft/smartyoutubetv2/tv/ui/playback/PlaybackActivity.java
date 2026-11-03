@@ -39,6 +39,11 @@ public class PlaybackActivity extends LeanbackActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Phone: start fullscreen in landscape right away; vertical videos (Shorts) switch to portrait once their size is known
+        if (com.liskovsoft.smartyoutubetv2.tv.ui.browse.PhoneNavBar.isPhone(this)) {
+            setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        }
         setContentView(R.layout.fragment_playback);
         Fragment fragment =
                 getSupportFragmentManager().findFragmentByTag(getString(R.string.playback_tag));
