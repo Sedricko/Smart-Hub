@@ -248,7 +248,8 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
 
         FrameLayout wrapper = new FrameLayout(getContext());
         wrapper.addView(content, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        mNavBar = new PhoneNavBar(wrapper, mSectionRowAdapter, bg, accent, index -> selectSection(index, true));
+        mNavBar = new PhoneNavBar(wrapper, mSectionRowAdapter, bg, accent, index -> selectSection(index, true),
+                () -> SearchPresenter.instance(getContext()).startSearch(null));
 
         // Edge-to-edge (targetSdk 35): content stays below the status bar and above the bottom bar
         content.setOnApplyWindowInsetsListener((v, insets) -> {

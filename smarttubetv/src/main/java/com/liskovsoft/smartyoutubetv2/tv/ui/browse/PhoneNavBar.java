@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.core.graphics.ColorUtils;
+import com.liskovsoft.smartyoutubetv2.tv.R;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.ObjectAdapter;
 import androidx.leanback.widget.PageRow;
@@ -29,6 +30,7 @@ public class PhoneNavBar {
     private final LinearLayout mItems;
     private final ArrayObjectAdapter mSections;
     private final OnSelect mListener;
+    private final Runnable mOnSearch;
     private final int mBg;
     private final int mActive;
     private final int mIdle;
@@ -39,10 +41,11 @@ public class PhoneNavBar {
         return uiMode == null || uiMode.getCurrentModeType() != Configuration.UI_MODE_TYPE_TELEVISION;
     }
 
-    public PhoneNavBar(ViewGroup root, ArrayObjectAdapter sections, int bgColor, int accent, OnSelect listener) {
+    public PhoneNavBar(ViewGroup root, ArrayObjectAdapter sections, int bgColor, int accent, OnSelect listener, Runnable onSearch) {
         Context context = root.getContext();
         mSections = sections;
         mListener = listener;
+        mOnSearch = onSearch;
         mBg = bgColor;
         mActive = accent;
         mIdle = ColorUtils.calculateLuminance(bgColor) > 0.5 ? 0xFF5F6B7A : 0xFFAAB4C3;
@@ -85,6 +88,7 @@ public class PhoneNavBar {
         Context context = mScroll.getContext();
         float d = context.getResources().getDisplayMetrics().density;
         mItems.removeAllViews();
+        addCell(context, d, androidx.leanback.R.drawable.lb_ic_in_app_search, context.getString(R.string.phone_search), mIdle, v -> mOnSearch.run());
 
         for (int i = 0; i < mSections.size(); i++) {
             SectionHeaderItem header = (SectionHeaderItem) ((PageRow) mSections.get(i)).getHeaderItem();
@@ -92,30 +96,34 @@ public class PhoneNavBar {
             int color = active ? mActive : mIdle;
             final int index = i;
 
-            LinearLayout cell = new LinearLayout(context);
-            cell.setOrientation(LinearLayout.VERTICAL);
-            cell.setGravity(Gravity.CENTER);
-            cell.setPadding((int) (14 * d), (int) (8 * d), (int) (14 * d), (int) (8 * d));
-            cell.setMinimumWidth((int) (72 * d));
-            cell.setOnClickListener(v -> mListener.onSelect(index));
-            cell.setContentDescription(header.getName());
-
-            if (header.getResId() > 0) {
-                ImageView icon = new ImageView(context);
-                icon.setImageResource(header.getResId());
-                icon.setColorFilter(color);
-                cell.addView(icon, new LinearLayout.LayoutParams((int) (24 * d), (int) (24 * d)));
-            }
-
-            TextView label = new TextView(context);
-            label.setText(header.getName());
-            label.setTextSize(11);
-            label.setSingleLine();
-            label.setTextColor(color);
-            label.setGravity(Gravity.CENTER);
-            cell.addView(label);
-
-            mItems.addView(cell);
+            addCell(context, d, header.getResId(), header.getName(), color, v -> mListener.onSelect(index));
         }
+    }
+
+    private void addCell(Context context, float d, int iconRes, CharSequence name, int color, View.OnClickListener click) {
+        LinearLayout cell = new LinearLayout(context);
+        cell.setOrientation(LinearLayout.VERTICAL);
+        cell.setGravity(Gravity.CENTER);
+        cell.setPadding((int) (14 * d), (int) (8 * d), (int) (14 * d), (int) (8 * d));
+        cell.setMinimumWidth((int) (72 * d));
+        cell.setOnClickListener(click);
+        cell.setContentDescription(name);
+
+        if (iconRes > 0) {
+            ImageView icon = new ImageView(context);
+            icon.setImageResource(iconRes);
+            icon.setColorFilter(color);
+            cell.addView(icon, new LinearLayout.LayoutParams((int) (24 * d), (int) (24 * d)));
+        }
+
+        TextView label = new TextView(context);
+        label.setText(name);
+        label.setTextSize(11);
+        label.setSingleLine();
+        label.setTextColor(color);
+        label.setGravity(Gravity.CENTER);
+        cell.addView(label);
+
+        mItems.addView(cell);
     }
 }

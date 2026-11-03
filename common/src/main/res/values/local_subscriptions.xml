@@ -4,4 +4,5 @@
     <string name="local_subs_removed" translatable="false">Canal removido das inscrições locais</string>
     <string name="local_subs_empty" translatable="false">Sem login: use "Inscrever-se no canal" no menu de um vídeo para montar a sua lista local</string>
     <string name="update_unavailable" translatable="false">Não foi possível verificar atualizações agora. Tente mais tarde.</string>
+    <string name="phone_search" translatable="false">Buscar</string>
 </resources>

@@ -25,7 +25,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import com.liskovsoft.smartyoutubetv2.tv.ui.browse.PhoneNavBar;
 import androidx.annotation.ColorInt;
 import androidx.leanback.R;
 import androidx.leanback.widget.AbstractDetailsDescriptionPresenter;
@@ -418,6 +420,16 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
             return true;
         }
 
+        private void stackBelow(View info, int anchorId) {
+            RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) info.getLayoutParams();
+            lp.addRule(RelativeLayout.ALIGN_PARENT_END, 0);
+            lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
+            lp.addRule(RelativeLayout.CENTER_VERTICAL, 0);
+            lp.addRule(RelativeLayout.ALIGN_PARENT_START);
+            lp.addRule(RelativeLayout.BELOW, anchorId);
+            info.setLayoutParams(lp);
+        }
+
         /**
          * Constructor of ViewHolder of PlaybackTransportRowPresenter
          * @param rootView Root view of the ViewHolder.
@@ -442,6 +454,11 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
             mRemainingTimeFormat = rootView.getContext().getString(com.liskovsoft.smartyoutubetv2.tv.R.string.player_remaining_time);
             mAdditionalInfo = (ViewGroup) rootView.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.additional_info);
             mTimeInfo = (ViewGroup) rootView.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.time_info);
+            if (PhoneNavBar.isPhone(rootView.getContext())) {
+                // Narrow screen: stack the info lines under the button rows instead of overlapping them
+                stackBelow(mAdditionalInfo, R.id.controls_dock);
+                stackBelow(mTimeInfo, R.id.secondary_controls_dock);
+            }
             mTopEdge = (ViewGroup) rootView.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.top_edge);
             mTopEdge.setOnFocusChangeListener((v, hasFocus) -> {
                 if (hasFocus) {
