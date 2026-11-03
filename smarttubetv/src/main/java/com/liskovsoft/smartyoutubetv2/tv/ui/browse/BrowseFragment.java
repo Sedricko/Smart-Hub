@@ -23,6 +23,7 @@ import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.PresenterSelector;
 import androidx.leanback.widget.TitleHelper;
 import com.liskovsoft.sharedutils.helpers.Helpers;
+import com.liskovsoft.sharedutils.mylogger.Log;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.BrowseSection;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.SettingsGroup;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.Video;
@@ -356,6 +357,7 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
 
     @Override
     public void selectSection(int index, boolean focusOnContent) {
+        Log.d("BrowseFragment", "selectSection index=" + index + " current=" + getSelectedPosition() + " size=" + mSectionRowAdapter.size());
         if (index >= 0 && mSectionRowAdapter.size() > 0) {
             mFocusOnContent = focusOnContent; // focus after header transition
 

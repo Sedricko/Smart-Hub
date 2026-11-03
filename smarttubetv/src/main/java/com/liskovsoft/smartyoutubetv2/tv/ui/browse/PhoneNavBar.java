@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.core.graphics.ColorUtils;
+import com.liskovsoft.sharedutils.mylogger.Log;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.ObjectAdapter;
@@ -96,7 +97,10 @@ public class PhoneNavBar {
             int color = active ? mActive : mIdle;
             final int index = i;
 
-            addCell(context, d, header.getResId(), header.getName(), color, v -> mListener.onSelect(index));
+            addCell(context, d, header.getResId(), header.getName(), color, v -> {
+                Log.d("PhoneNavBar", "tap section index=" + index + " id=" + header.getId() + " name=" + header.getName());
+                mListener.onSelect(index);
+            });
         }
     }
 
