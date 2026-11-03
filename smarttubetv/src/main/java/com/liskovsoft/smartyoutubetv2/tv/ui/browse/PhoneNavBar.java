@@ -104,8 +104,7 @@ public class PhoneNavBar {
         LinearLayout cell = new LinearLayout(context);
         cell.setOrientation(LinearLayout.VERTICAL);
         cell.setGravity(Gravity.CENTER);
-        cell.setPadding((int) (14 * d), (int) (8 * d), (int) (14 * d), (int) (8 * d));
-        cell.setMinimumWidth((int) (72 * d));
+        cell.setPadding((int) (4 * d), (int) (8 * d), (int) (4 * d), (int) (8 * d));
         cell.setOnClickListener(click);
         cell.setContentDescription(name);
 
@@ -120,10 +119,12 @@ public class PhoneNavBar {
         label.setText(name);
         label.setTextSize(11);
         label.setSingleLine();
+        label.setEllipsize(android.text.TextUtils.TruncateAt.END);
         label.setTextColor(color);
         label.setGravity(Gravity.CENTER);
         cell.addView(label);
 
-        mItems.addView(cell);
+        // Fixed width: LinearLayout ignores minimum width, and names must not be clipped
+        mItems.addView(cell, new LinearLayout.LayoutParams((int) (88 * d), ViewGroup.LayoutParams.WRAP_CONTENT));
     }
 }
