@@ -672,9 +672,10 @@ public class BrowsePresenter extends BasePresenter<BrowseView> implements Sectio
                 }
                 return true;
             case MediaGroup.TYPE_HOME:
-                Observable<List<MediaGroup>> trending = mRowMapping.get(MediaGroup.TYPE_TRENDING);
-                if (trending != null) {
-                    updateVideoRows(section, trending, false);
+                // Without an account the personal feed is empty (and Trending returns nothing today): borrow the public Music rows
+                Observable<List<MediaGroup>> publicRows = mRowMapping.get(MediaGroup.TYPE_MUSIC);
+                if (publicRows != null) {
+                    updateVideoRows(section, publicRows, false);
                     return true;
                 }
                 return false;

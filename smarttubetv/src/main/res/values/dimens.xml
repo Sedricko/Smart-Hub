@@ -48,7 +48,7 @@
 
     <!-- Decrease Browse fragment content top padding. -->
     <!-- Old value: 167dp -->
-    <dimen name="lb_browse_rows_margin_top">128dp</dimen>
+    <dimen name="lb_browse_rows_margin_top">140dp</dimen>
 
     <!-- YouTube mobile: 16dp side margin for feeds and player controls (TV keeps 56dp in values-television) -->
     <dimen name="lb_browse_padding_start">16dp</dimen>

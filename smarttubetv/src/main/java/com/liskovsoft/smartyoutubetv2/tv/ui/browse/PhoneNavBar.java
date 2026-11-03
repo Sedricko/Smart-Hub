@@ -95,12 +95,12 @@ public class PhoneNavBar {
         mChips.addView(mChipItems);
         FrameLayout.LayoutParams chipsLp = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, (int) (40 * mD), Gravity.TOP);
-        chipsLp.topMargin = (int) (66 * mD);
+        chipsLp.topMargin = (int) (78 * mD);
         root.addView(mChips, chipsLp);
         // Sits right under the title row (logo and profile), below the status bar
         mChips.setOnApplyWindowInsetsListener((v, insets) -> {
             FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) v.getLayoutParams();
-            int top = insets.getSystemWindowInsetTop() + (int) (66 * mD);
+            int top = insets.getSystemWindowInsetTop() + (int) (78 * mD);
             if (lp.topMargin != top) {
                 lp.topMargin = top;
                 v.setLayoutParams(lp);
