@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -56,6 +57,8 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
     private boolean mIsFragmentCreated;
     private boolean mFocusOnContent;
     private CrashRestorer mCrashRestorer;
+    private boolean mPhone;
+    private PhoneNavBar mNavBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,6 +70,7 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
         
         mCrashRestorer = new CrashRestorer(getContext(), savedInstanceState);
         mIsFragmentCreated = true;
+        mPhone = PhoneNavBar.isPhone(getContext());
 
         mSections = new HashMap<>();
         mHandler = new Handler();
@@ -96,7 +100,7 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
 
         mProgressBarManager.setRootView((ViewGroup) root);
 
-        return root;
+        return mPhone ? setupPhoneUi((ViewGroup) root) : root;
     }
 
     @Override
@@ -155,6 +159,9 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
                 (row) -> {
                     focusOnContentIfNeeded();
                     mBrowsePresenter.onSectionFocused(getSelectedHeaderId());
+                    if (mNavBar != null) {
+                        mNavBar.select(getSelectedHeaderId());
+                    }
                 }
         );
 
@@ -185,7 +192,7 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
             return;
         }
 
-        setHeadersState(HEADERS_ENABLED);
+        setHeadersState(mPhone ? HEADERS_DISABLED : HEADERS_ENABLED);
         setHeadersTransitionOnBackEnabled(true);
 
         int brandColorRes = Helpers.getThemeAttr(getContext(), R.attr.brandColor);
@@ -233,6 +240,30 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
                 return null;
             }
         });
+    }
+
+    private View setupPhoneUi(ViewGroup content) {
+        int bg = ContextCompat.getColor(getContext(), Helpers.getThemeAttr(getContext(), R.attr.brandColor));
+        int accent = ContextCompat.getColor(getContext(), Helpers.getThemeAttr(getContext(), R.attr.brandAccentColor));
+
+        FrameLayout wrapper = new FrameLayout(getContext());
+        wrapper.addView(content, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mNavBar = new PhoneNavBar(wrapper, mSectionRowAdapter, bg, accent, index -> selectSection(index, true));
+
+        // Edge-to-edge (targetSdk 35): content stays below the status bar and above the bottom bar
+        content.setOnApplyWindowInsetsListener((v, insets) -> {
+            v.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
+            return insets;
+        });
+        mNavBar.setOnHeightChanged(height -> {
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) content.getLayoutParams();
+            if (lp.bottomMargin != height) {
+                lp.bottomMargin = height;
+                content.setLayoutParams(lp);
+            }
+        });
+
+        return wrapper;
     }
 
     private int getSelectedHeaderId() {

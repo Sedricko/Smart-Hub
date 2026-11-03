@@ -1,6 +1,7 @@
 package com.liskovsoft.smartyoutubetv2.tv.ui.browse.video;
 
 import android.content.Context;
+import com.liskovsoft.smartyoutubetv2.tv.ui.browse.PhoneNavBar;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Build.VERSION;
@@ -65,8 +66,10 @@ public class GridFragmentHelper {
         Resources res = context.getResources();
         int displayWidthPx;
 
-        // Take into the account screen orientation (e.g. when running on phone)
-        if (VERSION.SDK_INT >= 30 && Helpers.isCutoutMode(context)) {
+        if (PhoneNavBar.isPhone(context)) {
+            // Phone: the grid follows the current orientation
+            displayWidthPx = res.getDisplayMetrics().widthPixels;
+        } else if (VERSION.SDK_INT >= 30 && Helpers.isCutoutMode(context)) {
             // Take into the account screen cutout/notch area
             Rect bounds = context.getSystemService(WindowManager.class)
                     .getCurrentWindowMetrics().getBounds();
