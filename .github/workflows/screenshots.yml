@@ -88,16 +88,16 @@ jobs:
           sleep 60
           shot 01_inicio
 
-          # 720x1600: bottom bar (6 equal tabs: Search, Home, Shorts, Subs, History, Settings) at y~1510
-          tap 420 1510 10; shot 02_shorts_0   # tab 4: Subscriptions
-          tap 300 1510 12; shot 02_shorts
-          tap 660 1510 8;  shot 03_configuracoes
-          tap 540 1510 8;  shot 04_historico
-          tap 180 1510 10; shot 05_inicio_de_novo
+          # 720x1600: bottom bar (5 equal tabs: Home, Shorts, Subs, History, Settings) at y~1510; search icon top-right
+          tap 360 1510 10; shot 02_inscricoes
+          tap 216 1510 12; shot 02_shorts
+          tap 648 1510 8;  shot 03_configuracoes
+          tap 504 1510 8;  shot 04_historico
+          tap 72 1510 10;  shot 05_inicio_de_novo
           tap 560 215 8;   shot 05b_chip_music
           tap 360 800 35;  shot 06_video
           adb shell input keyevent KEYCODE_BACK; sleep 5
-          tap 60 1510 6;   shot 07_busca
+          tap 560 110 6;   shot 07_busca
           adb shell input keyevent KEYCODE_BACK; sleep 3
           adb shell wm size > shots/wm.txt
           adb logcat -d > shots/logcat.txt || true
