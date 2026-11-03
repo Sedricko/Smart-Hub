@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
+import com.liskovsoft.smartyoutubetv2.tv.ui.browse.PhoneNavBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -231,11 +232,13 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
         mIsLanguageViewEnabled = mainUIData.isTopButtonEnabled(MainUIData.TOP_BUTTON_CHANGE_LANGUAGE);
         mIsGlobalClockEnabled = GeneralData.instance(getContext()).isGlobalClockEnabled();
 
-        mSearchOrbView.setVisibility(mIsSearchOrbEnabled ? View.VISIBLE : View.GONE);
+        // Phone: search lives in the bottom bar, the clock is in the status bar
+        boolean phone = PhoneNavBar.isPhone(getContext());
+        mSearchOrbView.setVisibility(mIsSearchOrbEnabled && !phone ? View.VISIBLE : View.GONE);
         mAccountView.setVisibility(mIsAccountViewEnabled ? View.VISIBLE : View.GONE);
         mLanguageView.setVisibility(mIsLanguageViewEnabled ? View.VISIBLE : View.GONE);
-        mGlobalClock.setVisibility(mIsGlobalClockEnabled ? View.VISIBLE : View.GONE);
-        mGlobalDate.setVisibility(mIsGlobalClockEnabled ? View.VISIBLE : View.GONE);
+        mGlobalClock.setVisibility(mIsGlobalClockEnabled && !phone ? View.VISIBLE : View.GONE);
+        mGlobalDate.setVisibility(mIsGlobalClockEnabled && !phone ? View.VISIBLE : View.GONE);
 
         Utils.postDelayed(this::updateAccountIcon, 1_000); // give a time to engine to fetch an updated icon url
         //updateAccountIcon();
