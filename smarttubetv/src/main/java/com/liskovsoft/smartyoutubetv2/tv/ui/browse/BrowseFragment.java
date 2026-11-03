@@ -192,7 +192,7 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
             return;
         }
 
-        setHeadersState(mPhone ? HEADERS_DISABLED : HEADERS_ENABLED);
+        setHeadersState(mPhone ? HEADERS_HIDDEN : HEADERS_ENABLED);
         setHeadersTransitionOnBackEnabled(true);
 
         int brandColorRes = Helpers.getThemeAttr(getContext(), R.attr.brandColor);
