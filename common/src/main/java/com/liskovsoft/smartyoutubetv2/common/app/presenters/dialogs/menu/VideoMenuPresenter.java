@@ -19,6 +19,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.models.playback.service.VideoSt
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.service.VideoStateService.State;
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.ui.UiOptionItem;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.AppDialogPresenter;
+import com.liskovsoft.smartyoutubetv2.common.misc.LocalSubscriptions;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.BrowsePresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.ChannelPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.ChannelUploadsPresenter;
@@ -720,7 +721,8 @@ public class VideoMenuPresenter extends BaseMenuPresenter {
             return;
         }
 
-        mVideo.isSubscribed = mVideo.isSubscribed || mVideo.belongsToSubscriptions() || mVideo.belongsToChannelUploads();
+        mVideo.isSubscribed = mVideo.isSubscribed || mVideo.belongsToSubscriptions() || mVideo.belongsToChannelUploads()
+                || (!getSignInService().isSigned() && LocalSubscriptions.contains(getContext(), mVideo.channelId));
 
         mDialogPresenter.appendSingleButton(
                 UiOptionItem.from(getContext().getString(
@@ -969,6 +971,19 @@ public class VideoMenuPresenter extends BaseMenuPresenter {
 
     private void toggleSubscribe(Video video) {
         if (video == null) {
+            return;
+        }
+
+        if (!getSignInService().isSigned()) {
+            // No account: keep the channel in the local list instead of pretending to subscribe on YouTube
+            boolean saved = LocalSubscriptions.toggle(getContext(), video);
+            video.isSubscribed = saved;
+
+            if (!saved && mCallback != null) {
+                mCallback.onItemAction(video, VideoMenuCallback.ACTION_UNSUBSCRIBE);
+            }
+
+            MessageHelpers.showMessage(getContext(), saved ? R.string.local_subs_saved : R.string.local_subs_removed);
             return;
         }
 

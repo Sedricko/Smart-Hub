@@ -36,8 +36,10 @@ import com.liskovsoft.smartyoutubetv2.common.app.presenters.dialogs.menu.provide
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.interfaces.SectionPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.interfaces.VideoGroupPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.views.BrowseView;
+import com.liskovsoft.sharedutils.helpers.MessageHelpers;
 import com.liskovsoft.smartyoutubetv2.common.misc.AppDataSourceManager;
 import com.liskovsoft.smartyoutubetv2.common.misc.BrowseProcessorManager;
+import com.liskovsoft.smartyoutubetv2.common.misc.LocalSubscriptions;
 import com.liskovsoft.smartyoutubetv2.common.misc.MediaServiceManager;
 import com.liskovsoft.smartyoutubetv2.common.misc.MediaServiceManager.AccountChangeListener;
 import com.liskovsoft.smartyoutubetv2.common.prefs.AccountsData;
@@ -644,8 +646,51 @@ public class BrowsePresenter extends BasePresenter<BrowseView> implements Sectio
         updateSection(mCurrentSection);
     }
 
+    /**
+     * Sections that normally need an account: show the local equivalent when signed out.
+     * @return true if the section was handled
+     */
+    private boolean updateSectionSignedOut(BrowseSection section) {
+        if (getSignInService().isSigned()) {
+            return false;
+        }
+
+        switch (section.getId()) {
+            case MediaGroup.TYPE_CHANNEL_UPLOADS:
+                updateLocalGrid(section, () -> LocalSubscriptions.channels(getContext()));
+                if (LocalSubscriptions.channelIds(getContext()).length == 0) {
+                    MessageHelpers.showLongMessage(getContext(), R.string.local_subs_empty);
+                }
+                return true;
+            case MediaGroup.TYPE_SUBSCRIPTIONS:
+                String[] ids = LocalSubscriptions.channelIds(getContext());
+                if (ids.length == 0) {
+                    updateLocalGrid(section, () -> new ArrayList<Video>());
+                    MessageHelpers.showLongMessage(getContext(), R.string.local_subs_empty);
+                } else {
+                    updateVideoGrid(section, getContentService().getRssFeedObserve(ids), false);
+                }
+                return true;
+            case MediaGroup.TYPE_HOME:
+                Observable<List<MediaGroup>> trending = mRowMapping.get(MediaGroup.TYPE_TRENDING);
+                if (trending != null) {
+                    updateVideoRows(section, trending, false);
+                    return true;
+                }
+                return false;
+            default:
+                return false;
+        }
+    }
+
     private void updateSection(BrowseSection section) {
         switch (section.getType()) {
+        if (updateSectionSignedOut(section)) {
+            updateRefreshTime();
+            return;
+        }
+
+
             case BrowseSection.TYPE_GRID:
             case BrowseSection.TYPE_SHORTS_GRID:
                 if (mGridMapping.containsKey(section.getId())) {
