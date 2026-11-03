@@ -1,5 +1,6 @@
 package com.liskovsoft.smartyoutubetv2.tv.ui.playback.mod.surface;
 
+import com.liskovsoft.smartyoutubetv2.tv.ui.browse.PhoneNavBar;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -62,8 +63,23 @@ public class SurfacePlaybackFragment extends PlaybackSupportFragment {
 
     @Override
     protected void onVideoSizeChanged(int width, int height) {
+        applyPhoneOrientation(width, height);
         mVideoAspectRatio = ((float) width) / height;
         mVideoSurfaceRoot.setAspectRatio(calculateAspectRatio());
+    }
+
+    /**
+     * Phone: regular videos play fullscreen in landscape (either side), vertical ones (Shorts) in portrait.
+     */
+    private void applyPhoneOrientation(int width, int height) {
+        android.app.Activity activity = getActivity();
+        if (activity == null || width <= 0 || height <= 0 || !PhoneNavBar.isPhone(activity)) {
+            return;
+        }
+
+        activity.setRequestedOrientation(width >= height
+                ? android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                : android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     /**
