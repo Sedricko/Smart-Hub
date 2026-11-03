@@ -207,6 +207,16 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
             ((android.widget.FrameLayout.LayoutParams) actions.getLayoutParams()).gravity = android.view.Gravity.END | android.view.Gravity.CENTER_VERTICAL;
             ((android.widget.FrameLayout.LayoutParams) logo.getLayoutParams()).gravity = android.view.Gravity.START | android.view.Gravity.CENTER_VERTICAL;
         }
+
+        // YouTube mobile action icons: no filled circle, just the glyph
+        int bg = ContextCompat.getColor(getContext(), com.liskovsoft.sharedutils.helpers.Helpers.getThemeAttr(getContext(), R.attr.brandColor));
+        int icon = androidx.core.graphics.ColorUtils.calculateLuminance(bg) > 0.5 ? 0xFF0F172A : 0xFFF1F5F9;
+        SearchOrbView.Colors flat = new SearchOrbView.Colors(Color.TRANSPARENT, Color.TRANSPARENT, icon);
+        mSearchOrbView.setOrbColors(flat);
+        View account = findViewById(R.id.account_orb);
+        if (account instanceof SearchOrbView) {
+            ((SearchOrbView) account).setOrbColors(flat);
+        }
     }
 
     private void setupButtons() {
