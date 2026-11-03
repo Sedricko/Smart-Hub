@@ -684,13 +684,12 @@ public class BrowsePresenter extends BasePresenter<BrowseView> implements Sectio
     }
 
     private void updateSection(BrowseSection section) {
-        switch (section.getType()) {
         if (updateSectionSignedOut(section)) {
             updateRefreshTime();
             return;
         }
 
-
+        switch (section.getType()) {
             case BrowseSection.TYPE_GRID:
             case BrowseSection.TYPE_SHORTS_GRID:
                 if (mGridMapping.containsKey(section.getId())) {
