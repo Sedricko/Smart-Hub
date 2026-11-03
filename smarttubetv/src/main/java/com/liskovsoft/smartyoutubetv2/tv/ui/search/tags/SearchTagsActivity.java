@@ -1,6 +1,7 @@
 package com.liskovsoft.smartyoutubetv2.tv.ui.search.tags;
 
 import android.os.Bundle;
+import com.liskovsoft.smartyoutubetv2.tv.ui.browse.PhoneNavBar;
 import android.view.KeyEvent;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 import com.liskovsoft.smartyoutubetv2.tv.ui.common.LeanbackActivity;
@@ -13,6 +14,13 @@ public class SearchTagsActivity extends LeanbackActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_search_tags);
+        if (PhoneNavBar.isPhone(this)) {
+            // Edge-to-edge (targetSdk 35): keep the search bar below the status bar
+            findViewById(android.R.id.content).setOnApplyWindowInsetsListener((v, insets) -> {
+                v.setPadding(0, insets.getSystemWindowInsetTop(), 0, insets.getSystemWindowInsetBottom());
+                return insets;
+            });
+        }
         mFragment = (SearchTagsFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.search_tags_fragment);
     }
