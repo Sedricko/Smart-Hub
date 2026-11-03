@@ -60,6 +60,11 @@ public class MainApplication extends MultiDexApplication implements Configuratio
     public void onCreate() {
         super.onCreate();
 
+        // Touch devices: no focus zoom on cards (YouTube mobile has no focus highlight). Must run before any presenter is built.
+        if (com.liskovsoft.smartyoutubetv2.tv.ui.browse.PhoneNavBar.isPhone(this)) {
+            com.liskovsoft.smartyoutubetv2.tv.util.ViewUtil.FOCUS_ZOOM_FACTOR = androidx.leanback.widget.FocusHighlight.ZOOM_FACTOR_NONE;
+        }
+
         // ByeByeDPI fix
         // https://android-review.googlesource.com/c/platform/external/conscrypt/+/89408/
         // NOTE: Android 10+ (API 29+) uses system Conscrypt TLS; custom Security providers are unnecessary

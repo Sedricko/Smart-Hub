@@ -174,9 +174,8 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
             mGlobalDate.setVisibility(mBrandingVisibility);
         }
 
-        // Phone: search is in the bottom bar and the clock in the status bar (visibility is reset above on every update)
+        // Phone: the clock is in the status bar (visibility is reset above on every update)
         if (PhoneNavBar.isPhone(getContext())) {
-            mSearchOrbView.setVisibility(View.GONE);
             mGlobalClock.setVisibility(View.GONE);
             mGlobalDate.setVisibility(View.GONE);
         }
@@ -197,10 +196,27 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
         mInitDone = true;
     }
 
+    /**
+     * YouTube mobile order: the logo at the start, the action buttons (search, account) at the end.
+     */
+    private void mirrorForPhone() {
+        View actions = (View) mSearchOrbView.getParent();
+        View logo = (View) ((View) findViewById(R.id.title_text).getParent()).getParent();
+        if (actions.getLayoutParams() instanceof android.widget.FrameLayout.LayoutParams
+                && logo.getLayoutParams() instanceof android.widget.FrameLayout.LayoutParams) {
+            ((android.widget.FrameLayout.LayoutParams) actions.getLayoutParams()).gravity = android.view.Gravity.END | android.view.Gravity.CENTER_VERTICAL;
+            ((android.widget.FrameLayout.LayoutParams) logo.getLayoutParams()).gravity = android.view.Gravity.START | android.view.Gravity.CENTER_VERTICAL;
+        }
+    }
+
     private void setupButtons() {
         MainUIData mainUIData = MainUIData.instance(getContext());
 
         mSearchOrbView = findViewById(R.id.title_orb);
+
+        if (PhoneNavBar.isPhone(getContext())) {
+            mirrorForPhone();
+        }
 
         mAccountView = findViewById(R.id.account_orb);
         mAccountView.setOnOrbClickedListener(v -> AccountSelectionPresenter.instance(getContext()).nextAccountOrDialog());
@@ -241,7 +257,7 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
 
         // Phone: search lives in the bottom bar, the clock is in the status bar
         boolean phone = PhoneNavBar.isPhone(getContext());
-        mSearchOrbView.setVisibility(mIsSearchOrbEnabled && !phone ? View.VISIBLE : View.GONE);
+        mSearchOrbView.setVisibility(mIsSearchOrbEnabled ? View.VISIBLE : View.GONE);
         mAccountView.setVisibility(mIsAccountViewEnabled ? View.VISIBLE : View.GONE);
         mLanguageView.setVisibility(mIsLanguageViewEnabled ? View.VISIBLE : View.GONE);
         mGlobalClock.setVisibility(mIsGlobalClockEnabled && !phone ? View.VISIBLE : View.GONE);

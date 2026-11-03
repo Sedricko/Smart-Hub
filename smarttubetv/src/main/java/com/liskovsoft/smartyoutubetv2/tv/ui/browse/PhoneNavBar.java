@@ -131,8 +131,6 @@ public class PhoneNavBar {
         mBarItems.removeAllViews();
         mChipItems.removeAllViews();
 
-        addTab(context, androidx.leanback.R.drawable.lb_ic_in_app_search, context.getString(R.string.action_search), mIdle, v -> mOnSearch.run());
-
         for (int i = 0; i < mSections.size(); i++) {
             SectionHeaderItem header = (SectionHeaderItem) ((PageRow) mSections.get(i)).getHeaderItem();
             boolean active = header.getId() == mSelectedId;
