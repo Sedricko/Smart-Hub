@@ -176,6 +176,12 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
 
         // Phone: the clock is in the status bar (visibility is reset above on every update)
         if (PhoneNavBar.isPhone(getContext())) {
+            // Invisible buttons still take room: drop them so the icons sit at the edge like on YouTube mobile
+            for (View hidden : new View[]{mLanguageView, mExitPip, mPipTitle}) {
+                if (hidden != null && hidden.getVisibility() == View.INVISIBLE) {
+                    hidden.setVisibility(View.GONE);
+                }
+            }
             mGlobalClock.setVisibility(View.GONE);
             mGlobalDate.setVisibility(View.GONE);
         }
