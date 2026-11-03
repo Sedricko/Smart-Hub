@@ -62,7 +62,7 @@
         <!-- Disable activity transition animations -->
         <item name="android:windowAnimationStyle">@null</item>
         <!-- Make activity fullscreen -->
-        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowFullscreen">@bool/app_window_fullscreen</item>
         <!-- Overlay bottom bar (can't hide it from styles) -->
         <item tools:targetApi="19" name="android:windowTranslucentNavigation">true</item>
         <!-- Fix 'screen off' mode on some devices? -->
@@ -75,7 +75,7 @@
         <!-- Disable activity transition animations -->
         <item name="android:windowAnimationStyle">@null</item>
         <!-- Make activity fullscreen -->
-        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowFullscreen">@bool/app_window_fullscreen</item>
         <!-- Overlay bottom bar (can't hide it from styles) -->
         <item tools:targetApi="19" name="android:windowTranslucentNavigation">true</item>
     </style>
@@ -91,7 +91,7 @@
         <!-- Disable activity transition animations -->
         <item name="android:windowAnimationStyle">@null</item>
         <!-- Make activity fullscreen -->
-        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowFullscreen">@bool/app_window_fullscreen</item>
         <!-- Overlay bottom bar (can't hide it from styles) -->
         <item tools:targetApi="19" name="android:windowTranslucentNavigation">true</item>
     </style>

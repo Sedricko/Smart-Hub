@@ -8,4 +8,5 @@
     <dimen name="lb_search_bar_items_width">600dp</dimen>
     <dimen name="lb_browse_padding_start">56dp</dimen>
     <dimen name="lb_browse_padding_end">56dp</dimen>
+    <dimen name="settings_card_width">128dp</dimen>
 </resources>

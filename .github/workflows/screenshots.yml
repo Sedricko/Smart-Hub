@@ -67,6 +67,7 @@ jobs:
           adb shell settings put global transition_animation_scale 0
           adb shell settings put global animator_duration_scale 0
           adb shell settings put system accelerometer_rotation 1
+          adb shell settings put secure immersive_mode_confirmations confirmed
           adb shell wm size
           adb shell wm density
 
@@ -88,10 +89,11 @@ jobs:
           tap 990 2250 6;  shot 03_configuracoes
           tap 810 2250 6;  shot 04_historico
           tap 270 2250 8;  shot 05_inicio_de_novo
-          tap 90 2250 5;   shot 06_busca
-          adb shell input keyevent KEYCODE_BACK; sleep 3
-          # open the first video card on Home
-          tap 540 900 25;  shot 07_video
+          # open the first video card on Home, then come back
+          tap 270 2250 8
+          tap 540 1000 30; shot 06_video
+          adb shell input keyevent KEYCODE_BACK; sleep 4
+          tap 90 2250 5;   shot 07_busca
           adb shell input keyevent KEYCODE_BACK; sleep 3
           adb shell wm size > shots/wm.txt
           adb logcat -d > shots/logcat.txt || true
