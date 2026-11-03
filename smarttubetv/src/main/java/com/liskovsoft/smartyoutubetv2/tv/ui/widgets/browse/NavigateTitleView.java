@@ -173,6 +173,13 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
         if (mIsGlobalClockEnabled) {
             mGlobalDate.setVisibility(mBrandingVisibility);
         }
+
+        // Phone: search is in the bottom bar and the clock in the status bar (visibility is reset above on every update)
+        if (PhoneNavBar.isPhone(getContext())) {
+            mSearchOrbView.setVisibility(View.GONE);
+            mGlobalClock.setVisibility(View.GONE);
+            mGlobalDate.setVisibility(View.GONE);
+        }
     }
 
     private void init() {

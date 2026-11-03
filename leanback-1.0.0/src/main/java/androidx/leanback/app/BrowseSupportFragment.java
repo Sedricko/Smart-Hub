@@ -1032,7 +1032,17 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         mMainFragmentScaleEnabled = enable;
     }
 
+    /** Phone mode: the sections pane never opens (navigation is the bottom bar). */
+    private boolean mHeadersLocked;
+
+    public void setHeadersLocked(boolean locked) {
+        mHeadersLocked = locked;
+    }
+
     void startHeadersTransitionInternal(final boolean withHeaders) {
+        if (withHeaders && mHeadersLocked) {
+            return;
+        }
         if (getFragmentManager().isDestroyed()) {
             return;
         }
@@ -1456,6 +1466,9 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     void showHeaders(boolean show) {
+        if (show && mHeadersLocked) {
+            return;
+        }
         if (DEBUG) Log.v(TAG, "showHeaders " + show);
         mHeadersSupportFragment.setHeadersEnabled(show);
         setHeadersOnScreen(show);
