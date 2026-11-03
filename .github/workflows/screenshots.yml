@@ -1,6 +1,6 @@
-name: Screenshots (emulador Android TV)
+name: Screenshots (emulador celular)
 
-# Abre o app num emulador de Android TV e tira capturas de tela reais.
+# Abre o app num emulador de celular (1080x2400) e tira capturas de tela reais.
 on:
   workflow_dispatch:
 
@@ -33,15 +33,22 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleStbetaDebug
 
-      - name: Create and start the emulator (phone image, TV-sized screen)
+      - name: Create and start the emulator (phone)
         run: |
           export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
+          ls -l /dev/kvm || echo "::warning::no /dev/kvm"
           yes | sdkmanager --licenses > /dev/null
           sdkmanager "emulator" "system-images;android-34;google_apis;x86_64" > /dev/null
-          echo no | avdmanager create avd -n tv -k "system-images;android-34;google_apis;x86_64" -d pixel_6 --force
-          nohup emulator -avd tv -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot -memory 3072 -accel on > emulator.log 2>&1 &
-          timeout 180 adb wait-for-device || { echo "::error::Emulator did not show up"; tail -n 80 emulator.log; exit 1; }
-          # Wait for boot, but never more than 10 minutes
+          echo no | avdmanager create avd -n phone -k "system-images;android-34;google_apis;x86_64" -d pixel_6 --force
+          nohup emulator -avd phone -no-window -no-audio -no-boot-anim -no-metrics -gpu swiftshader_indirect -no-snapshot -memory 3072 -accel on > emulator.log 2>&1 &
+          echo $! > emu.pid
+          # Wait for the device, but never forever
+          for i in $(seq 1 60); do
+            adb devices | grep -q "emulator-.*device" && break
+            kill -0 "$(cat emu.pid)" 2>/dev/null || { echo "::error::Emulator process died"; tail -n 80 emulator.log; exit 1; }
+            sleep 5
+          done
+          adb devices | grep -q "emulator-.*device" || { echo "::error::Emulator never appeared"; tail -n 80 emulator.log; exit 1; }
           for i in $(seq 1 120); do
             [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ] && break
             sleep 5
@@ -50,50 +57,39 @@ jobs:
           adb shell settings put global window_animation_scale 0
           adb shell settings put global transition_animation_scale 0
           adb shell settings put global animator_duration_scale 0
-          # Pretend to be a 1080p TV in landscape
-          adb shell wm size 1920x1080
-          adb shell wm density 240
-          adb shell settings put system accelerometer_rotation 0
-          adb shell settings put system user_rotation 1
+          adb shell settings put system accelerometer_rotation 1
+          adb shell wm size
+          adb shell wm density
 
       - name: Install the app and take screenshots
         run: |
           export PATH="$ANDROID_HOME/platform-tools:$PATH"
           mkdir -p shots
           shot() { adb exec-out screencap -p > "shots/$1.png"; }
-          key() { adb shell input keyevent "$1"; sleep "${2:-2}"; }
+          tap() { adb shell input tap "$1" "$2"; sleep "${3:-4}"; }
 
           APK=$(ls smarttubetv/build/outputs/apk/stbeta/debug/*universal*.apk | head -n 1)
           adb install -r -g "$APK"
           adb shell am start -n org.smarthub.app/com.liskovsoft.smartyoutubetv2.tv.ui.main.SplashActivity
-          sleep 45
-          shot 01_abertura
+          sleep 40
+          shot 01_inicio
 
-          key KEYCODE_DPAD_CENTER 6
-          shot 02_tela_inicial
-
-          key KEYCODE_DPAD_LEFT 3
-          shot 03_menu_lateral
-
-          for i in 1 2 3; do key KEYCODE_DPAD_DOWN 1; done
-          shot 04_menu_descendo
-
-          for i in $(seq 1 25); do key KEYCODE_DPAD_DOWN 1; done
-          shot 05_menu_fim
-
-          key KEYCODE_DPAD_CENTER 4
-          shot 06_configuracoes
-
-          key KEYCODE_DPAD_RIGHT 3
-          shot 07_configuracoes_lista
-
-          for i in $(seq 1 6); do key KEYCODE_DPAD_DOWN 1; done
-          shot 08_configuracoes_fim
-
-          key KEYCODE_DPAD_CENTER 4
-          shot 09_item_aberto
-
+          # bottom bar: Buscar, Inicio, Shorts, Inscricoes, Historico, Config (6 equal tabs on 1080px)
+          tap 450 2250 8;  shot 02_shorts
+          tap 990 2250 6;  shot 03_configuracoes
+          tap 810 2250 6;  shot 04_historico
+          tap 270 2250 8;  shot 05_inicio_de_novo
+          tap 90 2250 5;   shot 06_busca
+          adb shell input keyevent KEYCODE_BACK; sleep 3
+          # open the first video card on Home
+          tap 540 900 25;  shot 07_video
+          adb shell input keyevent KEYCODE_BACK; sleep 3
+          adb shell wm size > shots/wm.txt
           adb logcat -d > shots/logcat.txt || true
+
+      - name: Stop emulator
+        if: always()
+        run: kill "$(cat emu.pid)" 2>/dev/null || true
 
       - name: Upload screenshots
         if: always()
