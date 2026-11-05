@@ -173,6 +173,10 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
         ProgressBarManager.setup(getProgressBarManager(), (ViewGroup) root);
 
         mEndScreen = new EndScreenView(getContext());
+        mEndScreen.setOnVideoClickListener(video -> {
+            mEndScreen.hide();
+            mPlaybackPresenter.onSuggestionItemClicked(video);
+        });
         ((ViewGroup) root).addView(mEndScreen);
 
         return root;

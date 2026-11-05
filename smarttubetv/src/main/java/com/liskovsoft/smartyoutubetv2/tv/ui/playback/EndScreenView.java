@@ -24,6 +24,15 @@ public class EndScreenView extends LinearLayout {
     private static final int CARDS = 2;
     private List<Video> mVideos;
     private int mSelected = -1;
+    private OnVideoClickListener mListener;
+
+    public interface OnVideoClickListener {
+        void onVideoClick(Video video);
+    }
+
+    public void setOnVideoClickListener(OnVideoClickListener listener) {
+        mListener = listener;
+    }
 
     public EndScreenView(Context context) {
         super(context);
@@ -102,6 +111,12 @@ public class EndScreenView extends LinearLayout {
             lp.topMargin = dp(36);
         }
         card.setLayoutParams(lp);
+        card.setClickable(true); // touch or mouse; the remote uses the focus logic of the player
+        card.setOnClickListener(v -> {
+            if (mListener != null) {
+                mListener.onVideoClick(video);
+            }
+        });
 
         GradientDrawable border = new GradientDrawable();
         border.setCornerRadius(dp(12));
