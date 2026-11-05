@@ -46,6 +46,10 @@ jobs:
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
           df -h / | tail -n 1
           emulator -list-avds
+          # Create the adb key first so the emulator trusts this host (a fresh runner has none: "unauthorized")
+          adb kill-server || true
+          adb start-server
+          ls -l "$HOME/.android/adbkey.pub" || adb keygen "$HOME/.android/adbkey"
           nohup emulator -avd tv -no-window -no-audio -no-boot-anim -no-metrics -gpu swiftshader_indirect -no-snapshot -memory 3072 -accel on > emulator.log 2>&1 &
           echo $! > emu.pid
           for i in $(seq 1 60); do
@@ -56,6 +60,7 @@ jobs:
           adb devices | grep -q "emulator-.*device" || { echo "::error::Emulator never appeared"; tail -n 60 emulator.log; exit 1; }
           for i in $(seq 1 120); do
             [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ] && break
+            case "$(adb get-state 2>&1)" in *unauthorized*|*offline*) adb kill-server; adb start-server;; esac
             sleep 5
           done
           [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ] || { echo "::error::Emulator did not boot"; tail -n 60 emulator.log; exit 1; }
