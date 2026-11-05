@@ -20,3 +20,7 @@ Só estrutura e proporção. Cores, logo e ícones são do Smart Hub.
 - Fonte: layouts do APK são quase todos Litho (dirigidos por dados); só a casca (barra, chips, player) é XML.
 - Feito: barra inferior, chips, margem de 16dp, cards 16:9, player em paisagem, busca ajustada.
 - Pendente: cards com avatar, menus em folha inferior, gestos do player (toque duplo, deslizar), Shorts em tela cheia.
+
+## Tela final (endscreen) - APK 21.44.528
+- Cartões do criador (`endscreen_element_layout_video`): borda branca 70% (`yt_white1_opacity70`), título numa linha 12sp regular branco com sombra sobre degradê preto -> transparente (`endscreen_element_gradient_top`, centro `#CB000000` a 35%), duração no canto inferior direito (fundo preto 80%, 12sp, altura 20dp), margens internas 5dp.
+- "Relacionados" após o fim (`app_related_endscreen_results`): lista horizontal de 3 itens, miniatura 16:9 com borda de 1dp, título 1 linha, metadados 1 linha, padding 8dp, fundo com 300dp de altura.
