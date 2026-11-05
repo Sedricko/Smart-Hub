@@ -535,6 +535,7 @@
     <string name="enable_history">Habilitar histórico</string>
     <string name="clear_history">Limpar histórico</string>
     <string name="chapters">Capítulos</string>
+    <string name="end_screen_hint">Aperte ← para escolher um vídeo</string>
     <string name="card_multiline_subtitle">Legendas em múltiplas linhas</string>
     <string name="auto_frame_rate_modes">Modos suportados</string>
     <string name="loading">Carregando...</string>

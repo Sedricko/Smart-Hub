@@ -179,6 +179,16 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
     }
 
     private EndScreenView mEndScreen;
+    private List<Video> mEndScreenVideos; // cards defined by the channel owner (may be empty)
+
+    @Override
+    public void setEndScreenVideos(List<Video> videos) {
+        mEndScreenVideos = videos;
+
+        if (mEndScreen != null) {
+            mEndScreen.hide();
+        }
+    }
     private final Runnable mEndScreenTick = new Runnable() {
         @Override
         public void run() {
@@ -200,12 +210,34 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
 
         long remaining = getDurationMs() - getPositionMs();
 
-        if (getVideo().isLive || getDurationMs() <= 0 || remaining > 20_000 || remaining < 500 || !isPlaying() || isOverlayShown()) {
+        if (getVideo().isLive || getDurationMs() <= 0 || remaining < 500 || !isPlaying() || isOverlayShown()) {
             mEndScreen.hide();
             return;
         }
 
         java.util.List<Video> picks = new java.util.ArrayList<>();
+
+        // 1) the cards the channel owner chose, only inside the time window they set
+        if (mEndScreenVideos != null) {
+            long pos = getPositionMs();
+            for (Video v : mEndScreenVideos) {
+                if (pos >= v.endScreenStartMs && pos <= v.endScreenEndMs && picks.size() < 2) {
+                    picks.add(v);
+                }
+            }
+        }
+
+        if (!picks.isEmpty()) {
+            mEndScreen.show(picks);
+            return;
+        }
+
+        // 2) no creator cards: the last 20 seconds show suggested videos
+        if (remaining > 20_000) {
+            mEndScreen.hide();
+            return;
+        }
+
         for (int i = 0; i < 4 && picks.size() < 2; i++) {
             VideoGroup group = getSuggestionsByIndex(i);
             if (group == null || group.getVideos() == null) {
@@ -312,8 +344,19 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
 
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_DPAD_LEFT:
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
                 if (sel < 0) {
                     mEndScreen.select(0); // first press only focuses the cards, like YouTube
+                    return true;
+                }
+                if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_LEFT) {
+                    return true;
+                }
+                Video picked = mEndScreen.getSelectedVideo();
+                mEndScreen.hide();
+                if (picked != null) {
+                    mPlaybackPresenter.onSuggestionItemClicked(picked);
                 }
                 return true;
             case KeyEvent.KEYCODE_DPAD_UP:
@@ -328,15 +371,6 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
             case KeyEvent.KEYCODE_BACK:
                 if (sel < 0) return false;
                 mEndScreen.select(-1);
-                return true;
-            case KeyEvent.KEYCODE_DPAD_CENTER:
-            case KeyEvent.KEYCODE_ENTER:
-                if (sel < 0) return false;
-                Video picked = mEndScreen.getSelectedVideo();
-                mEndScreen.hide();
-                if (picked != null) {
-                    mPlaybackPresenter.onSuggestionItemClicked(picked);
-                }
                 return true;
             default:
                 return false;

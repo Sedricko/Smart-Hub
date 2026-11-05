@@ -12,6 +12,8 @@ public interface PlayerUI {
     int BUTTON_ON = 1;
     int BUTTON_DISABLED = -1;
     void updateSuggestions(VideoGroup group);
+    /** Video cards the channel owner put on the last seconds of the video (startMs/endMs hold the window). */
+    void setEndScreenVideos(List<Video> videos);
     void removeSuggestions(VideoGroup group);
     int getSuggestionsIndex(VideoGroup group);
     VideoGroup getSuggestionsByIndex(int index);

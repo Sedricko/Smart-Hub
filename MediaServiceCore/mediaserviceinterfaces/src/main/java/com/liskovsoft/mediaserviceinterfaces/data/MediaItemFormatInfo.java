@@ -34,6 +34,11 @@ public interface MediaItemFormatInfo extends FormatInfoProvision {
     Observable<InputStream> createMpdStreamObservable();
     List<String> createUrlList();
     MediaItemStoryboard createStoryboard();
+
+    /** Video cards defined by the channel owner. May be null or empty. */
+    default java.util.List<EndScreenItem> getEndScreenItems() {
+        return null;
+    }
     boolean isUnplayable();
     boolean isUnknownError();
     String getPlayabilityReason();

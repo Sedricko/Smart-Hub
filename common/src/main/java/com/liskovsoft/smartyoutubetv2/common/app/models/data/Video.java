@@ -98,6 +98,8 @@ public final class Video {
     public boolean isLiveEnd;
     public boolean isShuffled;
     public String searchQuery;
+    public long endScreenStartMs;
+    public long endScreenEndMs;
     private int startSegmentNum;
     private long liveDurationMs = -1;
     private long durationMs = -1;

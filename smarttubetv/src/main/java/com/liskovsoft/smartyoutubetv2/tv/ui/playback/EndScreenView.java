@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.Video;
+import com.liskovsoft.smartyoutubetv2.tv.R;
 
 import java.util.List;
 
@@ -48,8 +49,21 @@ public class EndScreenView extends LinearLayout {
             for (int i = 0; i < CARDS; i++) {
                 addView(createCard(videos.get(i), i));
             }
+            addView(createHint());
             setVisibility(VISIBLE);
         }
+    }
+
+    private View createHint() {
+        TextView hint = new TextView(getContext());
+        hint.setText(R.string.end_screen_hint);
+        hint.setTextColor(Color.WHITE);
+        hint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+        hint.setShadowLayer(dp(2), 0, 0, Color.BLACK);
+        LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        lp.topMargin = dp(16);
+        hint.setLayoutParams(lp);
+        return hint;
     }
 
     public void hide() {
@@ -75,7 +89,7 @@ public class EndScreenView extends LinearLayout {
     /** White ring on the focused card (-1 clears), like the YouTube TV focus. */
     public void select(int index) {
         mSelected = index;
-        for (int i = 0; i < getChildCount(); i++) {
+        for (int i = 0; i < Math.min(CARDS, getChildCount()); i++) {
             GradientDrawable border = (GradientDrawable) getChildAt(i).getBackground();
             border.setStroke(dp(i == index ? 5 : 2), i == index ? Color.WHITE : Color.argb(178, 255, 255, 255));
         }

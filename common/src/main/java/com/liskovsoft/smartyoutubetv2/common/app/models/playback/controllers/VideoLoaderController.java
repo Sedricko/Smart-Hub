@@ -14,6 +14,8 @@ import com.liskovsoft.mediaserviceinterfaces.data.MediaItemMetadata;
 import com.liskovsoft.sharedutils.helpers.Helpers;
 import com.liskovsoft.sharedutils.helpers.MessageHelpers;
 import com.liskovsoft.sharedutils.mylogger.Log;
+import java.util.ArrayList;
+import java.util.List;
 import com.liskovsoft.sharedutils.rx.RxHelper;
 import com.liskovsoft.smartyoutubetv2.common.R;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.Playlist;
@@ -271,6 +273,28 @@ public class VideoLoaderController extends BasePlayerController {
                            });
     }
 
+    private void sendEndScreen(PlaybackView player, MediaItemFormatInfo formatInfo) {
+        List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> items = formatInfo.getEndScreenItems();
+        Log.d(TAG, "End screen cards from YouTube: %s", items != null ? items.size() : 0);
+
+        List<Video> videos = new ArrayList<>();
+
+        if (items != null) {
+            for (com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem item : items) {
+                Video video = new Video();
+                video.videoId = item.getVideoId();
+                video.title = item.getTitle();
+                video.cardImageUrl = item.getThumbnailUrl();
+                video.badge = item.getDurationText();
+                video.endScreenStartMs = item.getStartMs();
+                video.endScreenEndMs = item.getEndMs();
+                videos.add(video);
+            }
+        }
+
+        player.setEndScreenVideos(videos);
+    }
+
     private void processFormatInfo(MediaItemFormatInfo formatInfo) {
         PlaybackView player = getPlayer();
 
@@ -281,6 +305,8 @@ public class VideoLoaderController extends BasePlayerController {
         String bgImageUrl = null;
 
         getVideo().sync(formatInfo);
+
+        sendEndScreen(player, formatInfo);
 
         // Fix stretched video for a couple milliseconds (before the onVideoSizeChanged gets called)
         applyAspectRatio(formatInfo);

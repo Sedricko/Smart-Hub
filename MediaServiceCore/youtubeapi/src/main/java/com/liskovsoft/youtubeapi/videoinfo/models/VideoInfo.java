@@ -15,6 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VideoInfo {
+    public List<EndScreenElement> getEndScreenElements() {
+        return mEndScreenElements;
+    }
+
     private static final String PARAM_EVENT_ID = "ei";
     private static final String PARAM_VM = "vm";
     private static final String PARAM_OF = "of";
@@ -53,6 +57,9 @@ public class VideoInfo {
 
     @JsonPath("$.videoDetails")
     private VideoDetails mVideoDetails;
+
+    @JsonPath("$.endscreen.endscreenRenderer.elements[*].endscreenElementRenderer")
+    private List<EndScreenElement> mEndScreenElements;
 
     @JsonPath("$.playbackTracking.videostatsPlaybackUrl.baseUrl")
     private String mPlaybackUrl;

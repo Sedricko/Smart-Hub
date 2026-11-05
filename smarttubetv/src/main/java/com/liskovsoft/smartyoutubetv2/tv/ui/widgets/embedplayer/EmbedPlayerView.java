@@ -72,6 +72,11 @@ public class EmbedPlayerView extends PlayerView implements PlaybackView {
     }
 
     @Override
+    public void setEndScreenVideos(java.util.List<com.liskovsoft.smartyoutubetv2.common.app.models.data.Video> videos) {
+        // NOP
+    }
+
+    @Override
     public void updateSuggestions(VideoGroup group) {
 
     }

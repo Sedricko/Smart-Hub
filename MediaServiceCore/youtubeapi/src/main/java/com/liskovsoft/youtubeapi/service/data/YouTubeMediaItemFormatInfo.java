@@ -49,6 +49,7 @@ public class YouTubeMediaItemFormatInfo implements MediaItemFormatInfo {
     private String mVisitorMonitoringData; // used in tracking
     private String mOfParam; // used in tracking
     private String mStoryboardSpec;
+    private List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> mEndScreenItems;
     private boolean mIsUnplayable;
     private String mPlayabilityStatus;
     private String mStartTimestamp;
@@ -125,6 +126,7 @@ public class YouTubeMediaItemFormatInfo implements MediaItemFormatInfo {
         formatInfo.mOfParam = videoInfo.getOfParam();
         // END Tracking params
         formatInfo.mStoryboardSpec = videoInfo.getStoryboardSpec();
+        formatInfo.mEndScreenItems = toEndScreenItems(videoInfo);
         formatInfo.mIsUnplayable = videoInfo.isUnplayable() && !formatInfo.containsUrlFormats();
         formatInfo.mIsAuth = videoInfo.isAuth();
         formatInfo.mIsUnknownError = videoInfo.isUnknownRestricted();
@@ -339,6 +341,27 @@ public class YouTubeMediaItemFormatInfo implements MediaItemFormatInfo {
     @Override
     public List<String> createUrlList() {
         return YouTubeUrlListBuilder.from(this).buildUriList();
+    }
+
+    @Override
+    public List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> getEndScreenItems() {
+        return mEndScreenItems;
+    }
+
+    private static List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> toEndScreenItems(VideoInfo videoInfo) {
+        if (videoInfo.getEndScreenElements() == null) {
+            return null;
+        }
+
+        List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> result = new ArrayList<>();
+
+        for (com.liskovsoft.youtubeapi.videoinfo.models.EndScreenElement element : videoInfo.getEndScreenElements()) {
+            if (element != null && element.isVideo()) {
+                result.add(element);
+            }
+        }
+
+        return result;
     }
 
     @Override
