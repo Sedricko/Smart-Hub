@@ -2,7 +2,6 @@ package com.liskovsoft.smartyoutubetv2.tv.ui.playback;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -78,7 +77,7 @@ public class EndScreenView extends LinearLayout {
         mSelected = index;
         for (int i = 0; i < getChildCount(); i++) {
             GradientDrawable border = (GradientDrawable) getChildAt(i).getBackground();
-            border.setStroke(dp(i == index ? 5 : 2), i == index ? Color.WHITE : Color.argb(170, 200, 200, 200));
+            border.setStroke(dp(i == index ? 5 : 2), i == index ? Color.WHITE : Color.argb(178, 255, 255, 255));
         }
     }
 
@@ -92,7 +91,7 @@ public class EndScreenView extends LinearLayout {
 
         GradientDrawable border = new GradientDrawable();
         border.setCornerRadius(dp(12));
-        border.setStroke(dp(2), Color.argb(170, 200, 200, 200));
+        border.setStroke(dp(2), Color.argb(178, 255, 255, 255));
         border.setColor(Color.argb(200, 20, 20, 20));
         card.setBackground(border);
         card.setPadding(dp(2), dp(2), dp(2), dp(2));
@@ -107,22 +106,23 @@ public class EndScreenView extends LinearLayout {
         TextView title = new TextView(getContext());
         title.setText(video.title);
         title.setTextColor(Color.WHITE);
-        title.setTypeface(Typeface.DEFAULT_BOLD);
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        title.setMaxLines(3);
+        title.setMaxLines(1);
+        title.setEllipsize(android.text.TextUtils.TruncateAt.END);
         title.setShadowLayer(dp(2), 0, 0, Color.BLACK);
-        FrameLayout.LayoutParams tlp = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.START);
-        tlp.setMargins(dp(12), dp(10), dp(12), 0);
-        card.addView(title, tlp);
+        title.setPadding(dp(10), dp(8), dp(10), dp(24));
+        // black -> transparent gradient behind the title (endscreen_element_gradient_top of the YouTube app)
+        GradientDrawable fade = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{Color.BLACK, Color.argb(203, 0, 0, 0), Color.TRANSPARENT});
+        title.setBackground(fade);
+        card.addView(title, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.START));
 
         if (video.badge != null) {
             TextView time = new TextView(getContext());
             time.setText(video.badge);
             time.setTextColor(Color.WHITE);
-            time.setTypeface(Typeface.DEFAULT_BOLD);
-            time.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+                        time.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
             time.setPadding(dp(6), dp(2), dp(6), dp(2));
-            time.setBackgroundColor(Color.argb(190, 0, 0, 0));
+            time.setBackgroundColor(Color.argb(204, 0, 0, 0));
             FrameLayout.LayoutParams blp = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.BOTTOM | Gravity.END);
             blp.setMargins(0, 0, dp(8), dp(8));
             card.addView(time, blp);
