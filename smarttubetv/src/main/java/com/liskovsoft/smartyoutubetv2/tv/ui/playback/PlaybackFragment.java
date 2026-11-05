@@ -202,7 +202,7 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
                 // the end screen is cosmetic: never let it break the player
                 Log.e(TAG, "End screen error: %s", e.getMessage());
             }
-            Utils.postDelayed(this, 1_000);
+            Utils.postDelayed(this, 250); // cards must enter and leave on time
         }
     };
 

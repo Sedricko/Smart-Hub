@@ -285,6 +285,11 @@ public class VideoLoaderController extends BasePlayerController {
         }
     }
 
+    private static String clock(long ms) {
+        long s = ms / 1000;
+        return String.format(java.util.Locale.US, "%d:%02d", s / 60, s % 60);
+    }
+
     private void sendEndScreen(PlaybackView player, MediaItemFormatInfo formatInfo) {
         List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> items = formatInfo.getEndScreenItems();
         Log.d(TAG, "End screen cards from YouTube: %s", items != null ? items.size() : 0);
@@ -304,6 +309,12 @@ public class VideoLoaderController extends BasePlayerController {
                 videos.add(video);
             }
         }
+
+        StringBuilder windows = new StringBuilder();
+        for (Video v : videos) {
+            windows.append(clock(v.endScreenStartMs)).append('-').append(clock(v.endScreenEndMs)).append(' ');
+        }
+        com.liskovsoft.smartyoutubetv2.common.exoplayer.other.DebugInfoManager.sCreatorCardWindows = windows.toString().trim();
 
         player.setEndScreenVideos(videos);
     }
