@@ -25,10 +25,13 @@ public class ErrorFixerController extends BasePlayerController implements OnLong
     private static final String TAG = ErrorFixerController.class.getSimpleName();
     private static final long STREAM_END_THRESHOLD_MS = 180_000;
     private static final int MAX_SABR_ERROR_FIX_ATTEMPTS = 3;
+    private static final int MAX_AUDIO_ERROR_ATTEMPTS = 3;
     private final BufferingDetector mBufferingDetector = new BufferingDetector(this);
     private VideoLoaderController mVideoLoaderController;
     private String mSabrErrorFixVideoId;
     private int mSabrErrorFixAttempts;
+    private String mAudioErrorVideoId;
+    private int mAudioErrorAttempts;
 
     @Override
     public void onInit() {
@@ -227,6 +230,7 @@ public class ErrorFixerController extends BasePlayerController implements OnLong
     private void applyEngineErrorAction(int type, int rendererIndex, Throwable error) {
         boolean restartEngine = true;
         boolean showMessage = true;
+        boolean giveUp = false;
         String errorContent = error != null ? error.getMessage() : null;
         String errorTitle = getErrorTitle(type, rendererIndex);
         String errorMessage = errorTitle + "\n" + errorContent;
@@ -296,8 +300,17 @@ public class ErrorFixerController extends BasePlayerController implements OnLong
                 restartEngine = false;
             }
         } else if (type == PlayerEventListener.ERROR_TYPE_RENDERER && rendererIndex == PlayerEventListener.RENDERER_INDEX_AUDIO) {
+            // Audio sink refused the format. Seen on Shield: the fix below failed too and the player looped idle -> buffering -> error forever.
+            String videoId = getVideo() != null ? getVideo().videoId : null;
+            if (!Helpers.equals(videoId, mAudioErrorVideoId)) {
+                mAudioErrorVideoId = videoId;
+                mAudioErrorAttempts = 0;
+            }
+            mAudioErrorAttempts++;
             getPlayerData().setFormat(FormatItem.AUDIO_HQ_MP4A);
-            restartEngine = false;
+            // 1st: reload with AAC. 2nd: rebuild the whole player (fresh audio sink, what a reboot would do). Then stop and let the user pick a format.
+            restartEngine = mAudioErrorAttempts > 1;
+            giveUp = mAudioErrorAttempts > MAX_AUDIO_ERROR_ATTEMPTS;
         } else if (type == PlayerEventListener.ERROR_TYPE_UNEXPECTED) {
             if (error instanceof NullPointerException) {
                 // SABR extractor throws NPE on subtitle error
@@ -317,6 +330,10 @@ public class ErrorFixerController extends BasePlayerController implements OnLong
             if (getPlayer() != null) {
                 getPlayer().setTitle(errorContent);
             }
+        }
+
+        if (giveUp) {
+            return;
         }
 
         if (restartEngine) {
