@@ -302,8 +302,45 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
         //ExoPlayerInitializer.enableAudioFocus(mPlayer, false); // Disable focus in PIP
     }
 
-    public void onDispatchKeyEvent(KeyEvent event) {
-        // NOP
+    /** @return true when the key was consumed by the end screen cards */
+    public boolean onDispatchKeyEvent(KeyEvent event) {
+        if (mEndScreen == null || !mEndScreen.isShown2() || event.getAction() != KeyEvent.ACTION_DOWN || isOverlayShown()) {
+            return false;
+        }
+
+        int sel = mEndScreen.getSelected();
+
+        switch (event.getKeyCode()) {
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                if (sel < 0) {
+                    mEndScreen.select(0); // first press only focuses the cards, like YouTube
+                }
+                return true;
+            case KeyEvent.KEYCODE_DPAD_UP:
+                if (sel < 0) return false;
+                mEndScreen.select(0);
+                return true;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                if (sel < 0) return false;
+                mEndScreen.select(1);
+                return true;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+            case KeyEvent.KEYCODE_BACK:
+                if (sel < 0) return false;
+                mEndScreen.select(-1);
+                return true;
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
+                if (sel < 0) return false;
+                Video picked = mEndScreen.getSelectedVideo();
+                mEndScreen.hide();
+                if (picked != null) {
+                    mPlaybackPresenter.onSuggestionItemClicked(picked);
+                }
+                return true;
+            default:
+                return false;
+        }
     }
 
     public void onDispatchTouchEvent(MotionEvent event) {

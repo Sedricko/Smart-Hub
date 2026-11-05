@@ -22,6 +22,8 @@ import java.util.List;
  */
 public class EndScreenView extends LinearLayout {
     private static final int CARDS = 2;
+    private List<Video> mVideos;
+    private int mSelected = -1;
 
     public EndScreenView(Context context) {
         super(context);
@@ -41,6 +43,8 @@ public class EndScreenView extends LinearLayout {
         }
 
         if (getVisibility() != VISIBLE) {
+            mVideos = videos;
+            mSelected = -1;
             removeAllViews();
             for (int i = 0; i < CARDS; i++) {
                 addView(createCard(videos.get(i), i));
@@ -52,7 +56,29 @@ public class EndScreenView extends LinearLayout {
     public void hide() {
         if (getVisibility() != GONE) {
             setVisibility(GONE);
+            mSelected = -1;
             removeAllViews();
+        }
+    }
+
+    public boolean isShown2() {
+        return getVisibility() == VISIBLE;
+    }
+
+    public int getSelected() {
+        return mSelected;
+    }
+
+    public Video getSelectedVideo() {
+        return mSelected >= 0 && mVideos != null && mSelected < mVideos.size() ? mVideos.get(mSelected) : null;
+    }
+
+    /** White ring on the focused card (-1 clears), like the YouTube TV focus. */
+    public void select(int index) {
+        mSelected = index;
+        for (int i = 0; i < getChildCount(); i++) {
+            GradientDrawable border = (GradientDrawable) getChildAt(i).getBackground();
+            border.setStroke(dp(i == index ? 5 : 2), i == index ? Color.WHITE : Color.argb(170, 200, 200, 200));
         }
     }
 
