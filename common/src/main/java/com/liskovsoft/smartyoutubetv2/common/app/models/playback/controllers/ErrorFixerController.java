@@ -37,7 +37,9 @@ public class ErrorFixerController extends BasePlayerController implements OnLong
 
     @Override
     public void onEngineError(int type, int rendererIndex, Throwable error) {
-        Log.e(TAG, "Player error occurred: %s. Trying to fix…", type);
+        // Type alone says nothing (e.g. which renderer failed and why): keep the whole error for the diagnostics report
+        Log.e(TAG, "Player error occurred: type=%s renderer=%s cause=%s. Trying to fix…", type, rendererIndex,
+                error != null ? Utils.getStackTraceAsString(error) : "null");
 
         mBufferingDetector.reset();
         runEngineErrorAction(type, rendererIndex, error);
