@@ -276,6 +276,7 @@ public class VideoLoaderController extends BasePlayerController {
     private void sendEndScreen(PlaybackView player, MediaItemFormatInfo formatInfo) {
         List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> items = formatInfo.getEndScreenItems();
         Log.d(TAG, "End screen cards from YouTube: %s", items != null ? items.size() : 0);
+        com.liskovsoft.smartyoutubetv2.common.exoplayer.other.DebugInfoManager.sCreatorCards = items != null ? items.size() : 0;
 
         List<Video> videos = new ArrayList<>();
 

@@ -423,12 +423,16 @@ public final class DebugInfoManager implements Runnable, Player.EventListener {
         }
     }
 
+    /** Set by the loader: how many creator cards the YouTube response carried (-1: unknown yet). */
+    public static volatile int sCreatorCards = -1;
+
     private void appendWebClientInfo() {
         String clientType = getClientType();
         //CharSequence playerVersion = getPlayerVersion();
         boolean potSupported = MediaServiceData.instance().isPotSupported();
 
         appendRow("Web info", "client=" + clientType + ";pot=" + potSupported);
+        appendRow("Creator cards", String.valueOf(sCreatorCards)); // cards the owner put on the video (YouTube end screen/info cards)
     }
 
     private void appendAccountInfo() {
