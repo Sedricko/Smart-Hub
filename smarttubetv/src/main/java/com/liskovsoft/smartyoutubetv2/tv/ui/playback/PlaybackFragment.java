@@ -227,29 +227,12 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
             }
         }
 
-        if (!picks.isEmpty()) {
-            mEndScreen.show(picks);
-            return;
-        }
-
-        // 2) no creator cards: the last 20 seconds show suggested videos
-        if (remaining > 20_000) {
+        // Only what the channel owner chose, like YouTube: no cards when he did not mention a video
+        if (picks.isEmpty()) {
             mEndScreen.hide();
-            return;
+        } else {
+            mEndScreen.show(picks);
         }
-
-        for (int i = 0; i < 4 && picks.size() < 2; i++) {
-            VideoGroup group = getSuggestionsByIndex(i);
-            if (group == null || group.getVideos() == null) {
-                break;
-            }
-            for (Video v : group.getVideos()) {
-                if (v.hasVideo() && !v.isChapter && v.title != null && !v.videoId.equals(getVideo().videoId) && picks.size() < 2) {
-                    picks.add(v);
-                }
-            }
-        }
-        mEndScreen.show(picks);
     }
 
     @Override
