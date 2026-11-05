@@ -44,3 +44,11 @@ Regras:
 - O título nunca é coberto por outra linha.
 - Botões de ação são pílulas de fundo escuro translúcido com ícone branco; o foco vira pílula clara.
 - Sem relógio e sem estatísticas técnicas (HD/FPS) por padrão.
+
+### Player: cores e prateleira de recomendados (segunda captura)
+
+- Texto principal `#F1F1F1`, texto secundário `#AAAAAA`, fundo da miniatura `#212121`. Fonte Roboto, base 24px (12sp).
+- Os recomendados ficam em **grade de 3 colunas**: miniaturas 552x309px (276x155dp), espaçamento 36px (18dp), margem esquerda 96px (48dp). Título em 2 linhas (negrito, ~36px), canal e "views • idade" em `#AAAAAA` (~24px), selo 4K em cinza, duração no canto inferior direito da miniatura.
+- Foco: anel branco ~6px com cantos arredondados e o título fica branco puro; os demais cards ficam cinza.
+- Ao descer dos controles, a prateleira sobe e ocupa a tela; o vídeo continua atrás.
+- Não capturado: tela de "fim do vídeo" (anúncios do convidado atrapalharam a captura). A fazer com a sua foto do YouTube original no fim de um vídeo.
