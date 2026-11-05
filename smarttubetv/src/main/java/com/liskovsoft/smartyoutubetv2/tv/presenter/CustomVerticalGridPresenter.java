@@ -16,6 +16,7 @@ public class CustomVerticalGridPresenter extends VerticalGridPresenter {
 
     public CustomVerticalGridPresenter(int layoutResId, int rootResId) {
         super(ViewUtil.FOCUS_ZOOM_FACTOR, ViewUtil.FOCUS_DIMMER_ENABLED);
+        setShadowEnabled(false); // YouTube draws no shadow behind the focused card
 
         mLayoutResId = layoutResId;
         mRootResId = rootResId;

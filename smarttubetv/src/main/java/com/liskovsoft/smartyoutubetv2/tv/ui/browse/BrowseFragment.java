@@ -195,6 +195,7 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
 
         setHeadersState(mPhone ? HEADERS_HIDDEN : HEADERS_ENABLED);
         setHeadersLocked(mPhone);
+        getHeadersSupportFragment().setKeepChildrenVisibleWhenDisabled(!mPhone);
         setHeadersTransitionOnBackEnabled(true);
 
         int brandColorRes = Helpers.getThemeAttr(getContext(), R.attr.brandColor);

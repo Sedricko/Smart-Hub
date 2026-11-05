@@ -189,10 +189,18 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
                 if (mHeadersEnabled) {
                     listView.setChildrenVisibility(View.VISIBLE);
                 } else {
-                    listView.setChildrenVisibility(View.INVISIBLE);
+                    listView.setChildrenVisibility(mKeepChildrenVisibleWhenDisabled ? View.VISIBLE : View.INVISIBLE);
                 }
             }
         }
+    }
+
+    private boolean mKeepChildrenVisibleWhenDisabled;
+
+    /** TV: the collapsed guide keeps showing its icon strip instead of hiding every item. */
+    public void setKeepChildrenVisibleWhenDisabled(boolean keep) {
+        mKeepChildrenVisibleWhenDisabled = keep;
+        updateListViewVisibility();
     }
 
     void setHeadersEnabled(boolean enabled) {
