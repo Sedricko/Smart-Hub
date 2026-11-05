@@ -1,0 +1,113 @@
+name: Update check (app 2460 vs publicado 2461)
+
+# Instala um build com versionCode 2460 e confere se o app encontra a atualização publicada (2461).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Build an OLDER debug APK (versionCode 2460, test only)
+        run: |
+          sed -i 's/versionCode 2461/versionCode 2460/' smarttubetv/build.gradle
+          grep -m1 versionCode smarttubetv/build.gradle
+          chmod +x gradlew
+          ./gradlew assembleStbetaDebug
+
+      - name: Create and start the emulator (phone)
+        run: |
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
+          ls -l /dev/kvm || echo "::warning::no /dev/kvm"
+          yes | sdkmanager --licenses > /dev/null
+          sdkmanager "emulator" "system-images;android-34;google_apis;x86_64" > /dev/null
+          export ANDROID_AVD_HOME="$HOME/.android/avd"
+          mkdir -p "$ANDROID_AVD_HOME"
+          echo no | avdmanager create avd -n phone -k "system-images;android-34;google_apis;x86_64" -d pixel_6 --force
+          # The runner is tight on disk: shrink the data partition and drop preinstalled toolchains we do not use
+          echo "disk.dataPartition.size=3GB" >> "$ANDROID_AVD_HOME/phone.avd/config.ini"
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
+          df -h / | tail -n 1
+          avdmanager list avd
+          emulator -list-avds
+          ls -l "$ANDROID_AVD_HOME"
+          # Create the adb key first so the emulator trusts this host (a fresh runner has none: "unauthorized")
+          adb kill-server || true
+          adb start-server
+          ls -l "$HOME/.android/adbkey.pub" || adb keygen "$HOME/.android/adbkey"
+          nohup emulator -avd phone -no-window -no-audio -no-boot-anim -no-metrics -gpu swiftshader_indirect -no-snapshot -memory 3072 -accel on > emulator.log 2>&1 &
+          echo $! > emu.pid
+          # Wait for the device, but never forever
+          for i in $(seq 1 60); do
+            adb devices | grep -q "emulator-.*device" && break
+            kill -0 "$(cat emu.pid)" 2>/dev/null || { echo "::error::Emulator process died"; tail -n 80 emulator.log; exit 1; }
+            sleep 5
+          done
+          adb devices | grep -q "emulator-.*device" || { echo "::error::Emulator never appeared"; tail -n 80 emulator.log; exit 1; }
+          for i in $(seq 1 120); do
+            [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ] && break
+            case "$(adb get-state 2>&1)" in *unauthorized*|*offline*) adb kill-server; adb start-server;; esac
+            sleep 5
+          done
+          [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ] || { echo "::error::Emulator did not boot"; tail -n 60 emulator.log; exit 1; }
+          adb shell settings put global window_animation_scale 0
+          adb shell settings put global transition_animation_scale 0
+          adb shell settings put global animator_duration_scale 0
+          adb shell settings put system accelerometer_rotation 1
+          adb shell settings put secure immersive_mode_confirmations confirmed
+          # Light load: the runner has 2 CPUs and no GPU, a 1080p screen makes System UI hang (ANR)
+          adb shell wm size 720x1600
+          adb shell wm density 320
+          adb shell settings put global hide_error_dialogs 1
+          sleep 90
+          adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS > /dev/null || true
+
+      - name: Install, open and read the update check
+        run: |
+          export PATH="$ANDROID_HOME/platform-tools:$PATH"
+          mkdir -p shots
+          APK=$(ls smarttubetv/build/outputs/apk/stbeta/debug/*universal*.apk | head -n 1)
+          adb install -r -g "$APK"
+          adb logcat -c
+          adb shell am start -n org.smarthub.app/com.liskovsoft.smartyoutubetv2.tv.ui.main.SplashActivity
+          sleep 100
+          adb exec-out screencap -p > shots/01_after_start.png
+          sleep 60
+          adb exec-out screencap -p > shots/02_later.png
+          adb logcat -d > shots/logcat.txt || true
+          grep -i -E "AppVersionChecker|AppUpdate|Checking for updates|latest version|update" shots/logcat.txt | grep -v -i "OKPRFL" | cut -c1-240 | head -40 > shots/update_lines.txt || true
+          cat shots/update_lines.txt
+
+      - name: Stop emulator
+        if: always()
+        run: kill "$(cat emu.pid)" 2>/dev/null || true
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: update-check
+          path: |
+            shots/
+            emulator.log
+          if-no-files-found: warn
