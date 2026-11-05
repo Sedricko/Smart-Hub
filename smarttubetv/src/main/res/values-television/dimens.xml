@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Android TV only (UI mode television): values/ holds the phone sizes -->
-    <dimen name="card_width">200dp</dimen>
-    <dimen name="card_height">110dp</dimen>
+    <dimen name="card_width">264dp</dimen>
+    <dimen name="card_height">149dp</dimen>
     <dimen name="channel_card_width">200dp</dimen>
     <dimen name="lb_browse_rows_margin_top">130dp</dimen>
     <dimen name="lb_search_bar_items_width">600dp</dimen>
     <dimen name="lb_browse_padding_start">56dp</dimen>
     <dimen name="lb_browse_padding_end">56dp</dimen>
     <dimen name="settings_card_width">128dp</dimen>
+    <!-- YouTube TV card: 264x148.5dp 16:9 thumbnail, 18dp gap, 18sp title, 13sp meta, ~86dp text block -->
+    <dimen name="lb_basic_card_title_text_size">18sp</dimen>
+    <dimen name="lb_basic_card_content_text_size">13sp</dimen>
+    <dimen name="lb_basic_card_info_height">86dp</dimen>
+    <dimen name="grid_item_horizontal_spacing">18dp</dimen>
 </resources>

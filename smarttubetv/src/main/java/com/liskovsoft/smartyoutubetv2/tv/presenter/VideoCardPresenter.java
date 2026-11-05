@@ -3,6 +3,7 @@ package com.liskovsoft.smartyoutubetv2.tv.presenter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build.VERSION;
 import android.util.Pair;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
+import com.liskovsoft.smartyoutubetv2.tv.ui.browse.PhoneNavBar;
 import androidx.leanback.widget.Presenter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -45,6 +47,8 @@ public class VideoCardPresenter extends LongClickPresenter {
     private int mWidth;
     private int mHeight;
 
+    private boolean mYouTubeStyle;
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
         Context context = parent.getContext();
@@ -73,6 +77,7 @@ public class VideoCardPresenter extends LongClickPresenter {
             @Override
             public void setSelected(boolean selected) {
                 updateCardBackgroundColor(this, selected);
+                updateFocusRing(this, selected);
                 super.setSelected(selected);
             }
         };
@@ -86,7 +91,9 @@ public class VideoCardPresenter extends LongClickPresenter {
         cardView.enableBadge(isBadgeEnabled());
         cardView.enableTitle(isTitleEnabled());
         cardView.enableContent(isContentEnabled());
-        cardView.setBackgroundColor(mDefaultBackgroundColor); // background is temporarily visible during animations
+        // TV follows the YouTube TV card: text straight on the page, no filled panel (phone keeps the panel for now)
+        mYouTubeStyle = !PhoneNavBar.isPhone(context);
+        cardView.setBackgroundColor(mYouTubeStyle ? Color.TRANSPARENT : mDefaultBackgroundColor); // background is temporarily visible during animations
         //if (VERSION.SDK_INT >= 23 && MainUIData.instance(context).isUiTweakEnabled(MainUIData.UI_TWEAK_ROUNDED_CORNERS)) {
         //    cardView.setForeground(ContextCompat.getDrawable(context, R.drawable.lb_card_outline));
         //}
@@ -94,9 +101,25 @@ public class VideoCardPresenter extends LongClickPresenter {
         return new ViewHolder(cardView);
     }
 
+    private void updateFocusRing(ComplexImageCardView view, boolean selected) {
+        if (!mYouTubeStyle || VERSION.SDK_INT < 23) {
+            return;
+        }
+
+        View thumb = view.findViewById(R.id.main_image_wrapper);
+        if (thumb != null) {
+            thumb.setForeground(selected ? ContextCompat.getDrawable(view.getContext(), R.drawable.card_focus_ring) : null);
+        }
+    }
+
     private void updateCardBackgroundColor(ComplexImageCardView view, boolean selected) {
         int backgroundColor = selected ? mSelectedBackgroundColor : mDefaultBackgroundColor;
         int textColor = selected ? mSelectedTextColor : mDefaultTextColor;
+
+        if (mYouTubeStyle) {
+            backgroundColor = Color.TRANSPARENT;
+            textColor = mDefaultTextColor; // same text color whether focused or not: focus is the white ring
+        }
 
         // Both background colors should be set because the view's
         // background is temporarily visible during animations.
@@ -114,7 +137,8 @@ public class VideoCardPresenter extends LongClickPresenter {
         }
         TextView contentText = view.findViewById(R.id.content_text);
         if (contentText != null) {
-            contentText.setTextColor(textColor);
+            // YouTube TV: channel and views in a softer secondary tone
+            contentText.setTextColor(mYouTubeStyle ? ColorUtils.setAlphaComponent(textColor, 170) : textColor);
         }
     }
 
