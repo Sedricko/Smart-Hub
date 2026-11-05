@@ -278,8 +278,8 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
         mSearchOrbView.setVisibility(mIsSearchOrbEnabled ? View.VISIBLE : View.GONE);
         mAccountView.setVisibility(mIsAccountViewEnabled ? View.VISIBLE : View.GONE);
         mLanguageView.setVisibility(mIsLanguageViewEnabled ? View.VISIBLE : View.GONE);
-        mGlobalClock.setVisibility(mIsGlobalClockEnabled && !phone ? View.VISIBLE : View.GONE);
-        mGlobalDate.setVisibility(mIsGlobalClockEnabled && !phone ? View.VISIBLE : View.GONE);
+        mGlobalClock.setVisibility(View.GONE); // no clock in the YouTube-style top bar
+        mGlobalDate.setVisibility(View.GONE);
 
         Utils.postDelayed(this::updateAccountIcon, 1_000); // give a time to engine to fetch an updated icon url
         //updateAccountIcon();
