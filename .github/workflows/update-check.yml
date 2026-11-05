@@ -30,7 +30,7 @@ jobs:
 
       - name: Build an OLDER debug APK (versionCode 2460, test only)
         run: |
-          sed -i 's/versionCode 2461/versionCode 2460/' smarttubetv/build.gradle
+          sed -i -E 's/versionCode [0-9]+/versionCode 2460/' smarttubetv/build.gradle
           grep -m1 versionCode smarttubetv/build.gradle
           chmod +x gradlew
           ./gradlew assembleStbetaDebug
