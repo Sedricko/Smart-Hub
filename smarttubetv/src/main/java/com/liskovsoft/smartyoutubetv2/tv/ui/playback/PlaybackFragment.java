@@ -172,7 +172,52 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
         // ProgressBar.setRootView already called at this moment.
         ProgressBarManager.setup(getProgressBarManager(), (ViewGroup) root);
 
+        mEndScreen = new EndScreenView(getContext());
+        ((ViewGroup) root).addView(mEndScreen);
+
         return root;
+    }
+
+    private EndScreenView mEndScreen;
+    private final Runnable mEndScreenTick = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                updateEndScreen();
+            } catch (RuntimeException e) {
+                // the end screen is cosmetic: never let it break the player
+                Log.e(TAG, "End screen error: %s", e.getMessage());
+            }
+            Utils.postDelayed(this, 1_000);
+        }
+    };
+
+    /** Last 20 seconds: two suggested videos on the left (YouTube TV end screen). */
+    private void updateEndScreen() {
+        if (mEndScreen == null || mExoPlayerController == null || getVideo() == null) {
+            return;
+        }
+
+        long remaining = getDurationMs() - getPositionMs();
+
+        if (getVideo().isLive || getDurationMs() <= 0 || remaining > 20_000 || remaining < 500 || !isPlaying() || isOverlayShown()) {
+            mEndScreen.hide();
+            return;
+        }
+
+        java.util.List<Video> picks = new java.util.ArrayList<>();
+        for (int i = 0; i < 4 && picks.size() < 2; i++) {
+            VideoGroup group = getSuggestionsByIndex(i);
+            if (group == null || group.getVideos() == null) {
+                break;
+            }
+            for (Video v : group.getVideos()) {
+                if (v.hasVideo() && !v.isChapter && v.title != null && !v.videoId.equals(getVideo().videoId) && picks.size() < 2) {
+                    picks.add(v);
+                }
+            }
+        }
+        mEndScreen.show(picks);
     }
 
     @Override
@@ -233,6 +278,8 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
         // NOTE: don't move this into another place! Multiple components rely on it.
         mPlaybackPresenter.onViewResumed();
 
+        Utils.postDelayed(mEndScreenTick, 1_000);
+
         showHideWidgets(true); // PIP mode fix
         blockEngine(false); // reset bg mode
         //ExoPlayerInitializer.enableAudioFocus(mPlayer, true); // Restore focus after PIP
@@ -241,6 +288,8 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
     @Override
     public void onPause() {
         super.onPause();
+
+        Utils.removeCallbacks(mEndScreenTick);
 
         // NOTE: don't move this into another place! Multiple components rely on it.
         mPlaybackPresenter.onViewPaused();
