@@ -15,6 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VideoInfo {
+    public List<InfoCardElement> getInfoCards() {
+        return mInfoCards;
+    }
+
     public List<EndScreenElement> getEndScreenElements() {
         return mEndScreenElements;
     }
@@ -60,6 +64,9 @@ public class VideoInfo {
 
     @JsonPath("$.endscreen.endscreenRenderer.elements[*].endscreenElementRenderer")
     private List<EndScreenElement> mEndScreenElements;
+
+    @JsonPath("$.cards.cardCollectionRenderer.cards[*].cardRenderer")
+    private List<InfoCardElement> mInfoCards;
 
     @JsonPath("$.playbackTracking.videostatsPlaybackUrl.baseUrl")
     private String mPlaybackUrl;

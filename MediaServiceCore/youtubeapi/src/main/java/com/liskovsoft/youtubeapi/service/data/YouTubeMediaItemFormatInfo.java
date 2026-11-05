@@ -349,15 +349,22 @@ public class YouTubeMediaItemFormatInfo implements MediaItemFormatInfo {
     }
 
     private static List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> toEndScreenItems(VideoInfo videoInfo) {
-        if (videoInfo.getEndScreenElements() == null) {
-            return null;
-        }
-
         List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> result = new ArrayList<>();
 
-        for (com.liskovsoft.youtubeapi.videoinfo.models.EndScreenElement element : videoInfo.getEndScreenElements()) {
-            if (element != null && element.isVideo()) {
-                result.add(element);
+        if (videoInfo.getEndScreenElements() != null) {
+            for (com.liskovsoft.youtubeapi.videoinfo.models.EndScreenElement element : videoInfo.getEndScreenElements()) {
+                if (element != null && element.isVideo()) {
+                    result.add(element);
+                }
+            }
+        }
+
+        // cards shown at any moment (the owner mentions a video)
+        if (videoInfo.getInfoCards() != null) {
+            for (com.liskovsoft.youtubeapi.videoinfo.models.InfoCardElement card : videoInfo.getInfoCards()) {
+                if (card != null && card.isVideo()) {
+                    result.add(card);
+                }
             }
         }
 
