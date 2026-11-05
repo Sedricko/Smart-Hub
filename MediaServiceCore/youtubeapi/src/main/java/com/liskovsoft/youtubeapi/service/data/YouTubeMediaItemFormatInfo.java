@@ -49,7 +49,7 @@ public class YouTubeMediaItemFormatInfo implements MediaItemFormatInfo {
     private String mVisitorMonitoringData; // used in tracking
     private String mOfParam; // used in tracking
     private String mStoryboardSpec;
-    private List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> mEndScreenItems;
+    private VideoInfo mCardsSource; // cards may arrive later (fetched with another client)
     private boolean mIsUnplayable;
     private String mPlayabilityStatus;
     private String mStartTimestamp;
@@ -126,7 +126,7 @@ public class YouTubeMediaItemFormatInfo implements MediaItemFormatInfo {
         formatInfo.mOfParam = videoInfo.getOfParam();
         // END Tracking params
         formatInfo.mStoryboardSpec = videoInfo.getStoryboardSpec();
-        formatInfo.mEndScreenItems = toEndScreenItems(videoInfo);
+        formatInfo.mCardsSource = videoInfo;
         formatInfo.mIsUnplayable = videoInfo.isUnplayable() && !formatInfo.containsUrlFormats();
         formatInfo.mIsAuth = videoInfo.isAuth();
         formatInfo.mIsUnknownError = videoInfo.isUnknownRestricted();
@@ -345,7 +345,7 @@ public class YouTubeMediaItemFormatInfo implements MediaItemFormatInfo {
 
     @Override
     public List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> getEndScreenItems() {
-        return mEndScreenItems;
+        return mCardsSource != null ? toEndScreenItems(mCardsSource) : null;
     }
 
     private static List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> toEndScreenItems(VideoInfo videoInfo) {

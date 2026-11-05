@@ -5,7 +5,7 @@ O app lê `https://github.com/Sedricko/Smart-Hub/releases/download/latest/smarth
 
 ## Condições
 1. **Repositório público** (privado devolve 404 e o app mostra "Não foi possível verificar atualizações").
-2. **Versão maior que a instalada.** O app só oferece o que tem `versionCode` maior (`smarttubetv/build.gradle`). Atual: 2469.
+2. **Versão maior que a instalada.** O app só oferece o que tem `versionCode` maior (`smarttubetv/build.gradle`). Atual: 2470.
 3. **Sempre a mesma chave de assinatura.** Os segredos `SIGNING_KEY`, `KEY_STORE_PASSWORD`, `ALIAS`, `KEY_PASSWORD` não podem mudar.
    Se a chave mudar, o Android recusa a atualização e é preciso desinstalar.
 

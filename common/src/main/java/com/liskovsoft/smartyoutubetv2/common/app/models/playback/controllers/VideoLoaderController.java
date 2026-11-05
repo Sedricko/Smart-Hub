@@ -273,6 +273,18 @@ public class VideoLoaderController extends BasePlayerController {
                            });
     }
 
+    private void resendEndScreenLater(MediaItemFormatInfo formatInfo, String videoId, long... delaysMs) {
+        for (long delay : delaysMs) {
+            Utils.postDelayed(() -> {
+                PlaybackView player = getPlayer();
+                List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> items = formatInfo.getEndScreenItems();
+                if (player != null && getVideo() != null && videoId != null && videoId.equals(getVideo().videoId) && items != null && !items.isEmpty()) {
+                    sendEndScreen(player, formatInfo);
+                }
+            }, delay);
+        }
+    }
+
     private void sendEndScreen(PlaybackView player, MediaItemFormatInfo formatInfo) {
         List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> items = formatInfo.getEndScreenItems();
         Log.d(TAG, "End screen cards from YouTube: %s", items != null ? items.size() : 0);
@@ -308,6 +320,7 @@ public class VideoLoaderController extends BasePlayerController {
         getVideo().sync(formatInfo);
 
         sendEndScreen(player, formatInfo);
+        resendEndScreenLater(formatInfo, getVideo().videoId, 4_000, 12_000, 30_000); // cards may arrive late
 
         // Fix stretched video for a couple milliseconds (before the onVideoSizeChanged gets called)
         applyAspectRatio(formatInfo);

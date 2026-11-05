@@ -15,6 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VideoInfo {
+    /** The playback client does not always carry the owner's cards: they are copied here from another client's response. */
+    public void setCards(List<EndScreenElement> endScreen, List<InfoCardElement> infoCards) {
+        mEndScreenElements = endScreen;
+        mInfoCards = infoCards;
+    }
+
     public List<InfoCardElement> getInfoCards() {
         return mInfoCards;
     }
@@ -63,10 +69,10 @@ public class VideoInfo {
     private VideoDetails mVideoDetails;
 
     @JsonPath("$.endscreen.endscreenRenderer.elements[*].endscreenElementRenderer")
-    private List<EndScreenElement> mEndScreenElements;
+    private volatile List<EndScreenElement> mEndScreenElements;
 
     @JsonPath("$.cards.cardCollectionRenderer.cards[*].cardRenderer")
-    private List<InfoCardElement> mInfoCards;
+    private volatile List<InfoCardElement> mInfoCards;
 
     @JsonPath("$.playbackTracking.videostatsPlaybackUrl.baseUrl")
     private String mPlaybackUrl;

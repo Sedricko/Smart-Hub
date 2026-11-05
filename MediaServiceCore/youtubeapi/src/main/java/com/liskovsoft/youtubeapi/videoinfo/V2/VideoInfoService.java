@@ -85,6 +85,8 @@ public class VideoInfoService extends VideoInfoServiceBase {
 
         applyFixesIfNeeded(result, videoId, clickTrackingParams);
 
+        fetchCardsAsync(result, videoId, clickTrackingParams);
+
         transformFormats(result);
 
         persistRecentTypeIfNeeded(result);
@@ -92,6 +94,34 @@ public class VideoInfoService extends VideoInfoServiceBase {
         mIsUnplayable = result.isUnplayable();
 
         return result;
+    }
+
+    /**
+     * The playback client (e.g. VISIONOS) does not send the owner's cards (endscreen/cards).
+     * The web client does: ask it in the background so the playback start is not delayed.
+     */
+    private void fetchCardsAsync(VideoInfo target, String videoId, String clickTrackingParams) {
+        if (target == null || target.isUnplayable() || hasCards(target)) {
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                VideoInfo web = getVideoInfo(AppClient.WEB_DUMMY, videoId, clickTrackingParams);
+                if (web != null) {
+                    target.setCards(web.getEndScreenElements(), web.getInfoCards());
+                }
+                Log.d(TAG, "Cards from the web client: endscreen=%s info=%s", web != null && web.getEndScreenElements() != null ? web.getEndScreenElements().size() : 0,
+                        web != null && web.getInfoCards() != null ? web.getInfoCards().size() : 0);
+            } catch (Exception e) {
+                Log.e(TAG, "Can't get cards: %s", e.getMessage());
+            }
+        }, "EndScreenCards").start();
+    }
+
+    private static boolean hasCards(VideoInfo info) {
+        return (info.getEndScreenElements() != null && !info.getEndScreenElements().isEmpty()) ||
+                (info.getInfoCards() != null && !info.getInfoCards().isEmpty());
     }
 
     public VideoInfo getAuthVideoInfo(String videoId, String clickTrackingParams) {
