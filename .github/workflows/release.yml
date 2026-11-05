@@ -6,6 +6,10 @@ on:
       changelog:
         description: 'Changelog line shown in the in-app update dialog'
         default: 'Melhorias e correções'
+      publish:
+        description: 'Publish to the "latest" release (false = dry run: build, sign and verify only, nothing is published)'
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -67,8 +71,40 @@ jobs:
           PY
           ls "$D"
 
+      # Fail before publishing anything if the APKs are not signed with the release key
+      # (a debug-signed APK would never update over a release install, and the other way around).
+      - name: Verify signatures and manifest
+        run: |
+          D=smarttubetv/build/outputs/apk/stbeta/release
+          AS=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)apksigner
+          CODE=$(grep -m1 'versionCode' smarttubetv/build.gradle | awk '{print $2}')
+          for f in "$D"/SmartHub_beta_*.apk; do
+            echo "== $f"
+            "$AS" verify --print-certs "$f" | tee /tmp/cert.txt
+            grep -qi "Android Debug" /tmp/cert.txt && { echo "::error::$f is signed with the debug key"; exit 1; }
+          done
+          grep -q "\"versionCode\": $CODE" "$D/smarthub.json" || { echo "::error::smarthub.json does not carry versionCode $CODE"; exit 1; }
+          for abi in universal arm64-v8a armeabi-v7a; do
+            [ -f "$D/SmartHub_beta_$(grep -m1 'versionName' smarttubetv/build.gradle | awk -F'"' '{print $2}')_$abi.apk" ] || { echo "::error::missing APK for $abi"; exit 1; }
+          done
+          echo "OK: signed with the release key, manifest matches versionCode $CODE"
+
+      - name: Keep the build as an artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: smart-hub-release
+          path: |
+            smarttubetv/build/outputs/apk/stbeta/release/*.apk
+            smarttubetv/build/outputs/apk/stbeta/release/smarthub.json
+
       - name: Publish release "latest"
+        if: ${{ inputs.publish }}
         run: |
           D=smarttubetv/build/outputs/apk/stbeta/release
           gh release view latest >/dev/null 2>&1 || gh release create latest --target "$GITHUB_SHA" --title "Smart Hub (latest)" --notes "Automatic update channel"
           gh release upload latest "$D"/*.apk "$D"/smarthub.json --clobber
+          # Drop stale assets from older releases (e.g. the former SmartTube_* names)
+          NEW=$(ls "$D"/*.apk "$D"/smarthub.json | xargs -n1 basename)
+          gh release view latest --json assets --jq '.assets[].name' | while read -r name; do
+            echo "$NEW" | grep -qx "$name" || gh release delete-asset latest "$name" -y
+          done
