@@ -40,8 +40,9 @@ public class EndScreenView extends LinearLayout {
         setFocusable(false);
         setVisibility(GONE);
 
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(dp(316), LayoutParams.WRAP_CONTENT, Gravity.START | Gravity.CENTER_VERTICAL);
-        lp.setMarginStart(dp(72));
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(dp(340), LayoutParams.WRAP_CONTENT, Gravity.START | Gravity.TOP);
+        lp.setMarginStart(dp(24));
+        lp.topMargin = dp(70);
         setLayoutParams(lp);
     }
 
@@ -59,20 +60,34 @@ public class EndScreenView extends LinearLayout {
                 addView(createCard(videos.get(i), i));
             }
             addView(createHint());
+            setAlpha(0f);
+            setTranslationX(-dp(28));
             setVisibility(VISIBLE);
+            animate().alpha(1f).translationX(0f).setDuration(250).start();
         }
     }
 
     private View createHint() {
+        LinearLayout row = new LinearLayout(getContext());
+        row.setOrientation(HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        LayoutParams rlp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        rlp.topMargin = dp(20);
+        row.setLayoutParams(rlp);
+
+        ImageView icon = new ImageView(getContext());
+        icon.setImageResource(R.drawable.ic_dpad_hint);
+        row.addView(icon, new LayoutParams(dp(32), dp(32)));
+
         TextView hint = new TextView(getContext());
         hint.setText(R.string.end_screen_hint);
         hint.setTextColor(Color.WHITE);
-        hint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+        hint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         hint.setShadowLayer(dp(2), 0, 0, Color.BLACK);
-        LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        lp.topMargin = dp(16);
-        hint.setLayoutParams(lp);
-        return hint;
+        hint.setPadding(dp(10), 0, 0, 0);
+        row.addView(hint);
+
+        return row;
     }
 
     public void hide() {
@@ -106,9 +121,9 @@ public class EndScreenView extends LinearLayout {
 
     private View createCard(Video video, int index) {
         FrameLayout card = new FrameLayout(getContext());
-        LayoutParams lp = new LayoutParams(dp(316), dp(178));
+        LayoutParams lp = new LayoutParams(dp(340), dp(191));
         if (index > 0) {
-            lp.topMargin = dp(36);
+            lp.topMargin = dp(37);
         }
         card.setLayoutParams(lp);
         card.setClickable(true); // touch or mouse; the remote uses the focus logic of the player

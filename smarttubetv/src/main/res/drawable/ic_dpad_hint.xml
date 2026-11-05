@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+    <!-- round directional pad: grey disc with four small arrows -->
+    <path android:fillColor="#99FFFFFF" android:pathData="M16,16m-15,0a15,15 0,1 1,30 0a15,15 0,1 1,-30 0"/>
+    <path android:fillColor="#FF3C3C3C" android:pathData="M16,6l3.5,5h-7z"/>
+    <path android:fillColor="#FF3C3C3C" android:pathData="M16,26l3.5,-5h-7z"/>
+    <path android:fillColor="#FF3C3C3C" android:pathData="M6,16l5,-3.5v7z"/>
+    <path android:fillColor="#FF3C3C3C" android:pathData="M26,16l-5,-3.5v7z"/>
+    <path android:fillColor="#FF3C3C3C" android:pathData="M16,16m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0"/>
+</vector>
