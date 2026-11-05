@@ -91,6 +91,14 @@ jobs:
           shot 04_segunda_prateleira
           for i in 1 2; do key KEYCODE_DPAD_RIGHT 1; done
           shot 05_foco
+          for i in 1 2; do key KEYCODE_DPAD_LEFT 2; done
+          for i in 1 2 3 4 5 6 7 8 9 10 11 12; do key KEYCODE_DPAD_DOWN 1; done
+          sleep 4
+          shot 06_configuracoes
+          for i in 1 2 3; do key KEYCODE_DPAD_RIGHT 1; done
+          for i in 1 2 3; do key KEYCODE_DPAD_DOWN 1; done
+          sleep 2
+          shot 07_configuracoes_rolada
           adb shell wm size > shots/wm.txt
           adb shell dumpsys window displays | grep -E "mCurrentRotation|DisplayInfo" | head -n 3 >> shots/wm.txt || true
           adb logcat -d > shots/logcat.txt || true
