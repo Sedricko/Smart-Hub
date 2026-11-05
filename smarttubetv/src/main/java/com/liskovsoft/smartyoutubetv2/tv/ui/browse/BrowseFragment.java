@@ -98,6 +98,7 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = super.onCreateView(inflater, container, savedInstanceState);
+        getHeadersSupportFragment().setKeepChildrenVisibleWhenDisabled(!mPhone);
 
         mProgressBarManager.setRootView((ViewGroup) root);
 
@@ -195,7 +196,6 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
 
         setHeadersState(mPhone ? HEADERS_HIDDEN : HEADERS_ENABLED);
         setHeadersLocked(mPhone);
-        getHeadersSupportFragment().setKeepChildrenVisibleWhenDisabled(!mPhone);
         setHeadersTransitionOnBackEnabled(true);
 
         int brandColorRes = Helpers.getThemeAttr(getContext(), R.attr.brandColor);
