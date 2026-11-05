@@ -1,5 +1,7 @@
 package com.liskovsoft.smartyoutubetv2.common.prefs;
 
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.audio.AudioCapabilities;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
@@ -128,7 +130,10 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
         }
     }
 
+    private final Context mContext;
+
     private PlayerData(Context context) {
+        mContext = context;
         mPrefs = AppPrefs.instance(context);
         mPrefs.addListener(this);
         initSubtitleStyles();
@@ -714,7 +719,22 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
         // Android 4 (probably some others) doesn't support opus (ac3 will be reverted to opus)
         // Note, 5.1 mp4a doesn't work in 5.1 mode
         // Use opus (ac3 fallback) on modern devices. vp9 and opus should be supported at the same time?
-        return DeviceHelpers.isVP9ResolutionSupported(2160) ? FormatItem.AUDIO_51_AC3 : FormatItem.AUDIO_HQ_MP4A;
+        if (!DeviceHelpers.isVP9ResolutionSupported(2160)) {
+            return FormatItem.AUDIO_HQ_MP4A;
+        }
+
+        // AC-3 5.1 only when the current output (HDMI/soundbar) really advertises it, otherwise the audio renderer fails
+        // (seen on Shield: 'audio format not supported' loop while the original YouTube app plays fine). Opus stereo otherwise.
+        return isAc3OutputSupported() ? FormatItem.AUDIO_51_AC3 : FormatItem.AUDIO_OPUS;
+    }
+
+    private boolean isAc3OutputSupported() {
+        try {
+            AudioCapabilities caps = AudioCapabilities.getCapabilities(mContext);
+            return caps.supportsEncoding(C.ENCODING_AC3) || caps.supportsEncoding(C.ENCODING_E_AC3);
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     public FormatItem getDefaultVideoFormat() {
