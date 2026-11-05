@@ -57,6 +57,9 @@
     <!-- Increase this value to hide left strip from Browse fragment (when headers collapsed) -->
     <!-- Old value: 238dp -->
     <dimen name="lb_browse_rows_margin_start">265dp</dimen>
+    <dimen name="browse_headers_padding_start">56dp</dimen>
+    <dimen name="player_padding_start">16dp</dimen>
+    <dimen name="player_padding_end">16dp</dimen>
 
     <!-- Make search bar more compact so more buttons could be added after it. -->
     <dimen name="lb_search_bar_items_width">220dp</dimen>

@@ -182,9 +182,11 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
                     hidden.setVisibility(View.GONE);
                 }
             }
-            mGlobalClock.setVisibility(View.GONE);
-            mGlobalDate.setVisibility(View.GONE);
         }
+
+        // YouTube's top bar has no clock (the player keeps its own); on the phone it is in the status bar anyway
+        mGlobalClock.setVisibility(View.GONE);
+        mGlobalDate.setVisibility(View.GONE);
     }
 
     private void init() {

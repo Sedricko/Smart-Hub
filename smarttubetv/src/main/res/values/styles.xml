@@ -22,10 +22,14 @@
     <!-- Decrease header spacing in BrowseView -->
     <style name="BrowseHeaderStyle" parent="Widget.Leanback.Headers.VerticalGridView">
         <item name="android:verticalSpacing">@dimen/browse_headers_vertical_spacing</item>
+        <item name="android:paddingStart">@dimen/browse_headers_padding_start</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
     <!-- Color scheme: Teal (Default) -->
     <style name="App.Theme.Leanback.Player" parent="Theme.Leanback">
+        <item name="browsePaddingStart">@dimen/player_padding_start</item>
+        <item name="browsePaddingEnd">@dimen/player_padding_end</item>
         <!-- <item name="android:windowBackground">@null</item> -->
         <!-- NOTE: don't use transparency because the BackgroundManager won't work (BackgroundManager:778) -->
         <item name="android:windowBackground">@android:color/black</item>

@@ -206,7 +206,7 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
         //setTitle(getString(R.string.browse_title));
 
         // Set fastLane (or headers) background color
-        setBrandColor(ContextCompat.getColor(getContext(), brandColorRes));
+        setBrandColor(mPhone ? ContextCompat.getColor(getContext(), brandColorRes) : android.graphics.Color.TRANSPARENT);
 
         // Set search icon color.
         setSearchAffordanceColor(ContextCompat.getColor(getContext(), brandAccentColorRes));
