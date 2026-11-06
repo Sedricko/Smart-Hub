@@ -166,15 +166,7 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
             mPipTitle.setVisibility(mSearchVisibility);
         }
 
-        if (mIsGlobalClockEnabled) {
-            mGlobalClock.setVisibility(mBrandingVisibility);
-        }
-
-        if (mIsGlobalClockEnabled) {
-            mGlobalDate.setVisibility(mBrandingVisibility);
-        }
-
-        // Phone: the clock is in the status bar (visibility is reset above on every update)
+        // Phone: the clock is in the status bar
         if (PhoneNavBar.isPhone(getContext())) {
             // Invisible buttons still take room: drop them so the icons sit at the edge like on YouTube mobile
             for (View hidden : new View[]{mLanguageView, mExitPip, mPipTitle}) {
@@ -184,7 +176,7 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
             }
         }
 
-        // YouTube's top bar has no clock (the player keeps its own); on the phone it is in the status bar anyway
+        // YouTube's top bar has no clock (the player keeps its own). Re-applied on every update: Leanback resets it.
         mGlobalClock.setVisibility(View.GONE);
         mGlobalDate.setVisibility(View.GONE);
     }
@@ -208,9 +200,9 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
      * YouTube mobile order: the logo at the start, the action buttons (search, account) at the end.
      */
     private void mirrorForPhone() {
-        View actions = (View) mSearchOrbView.getParent();
-        View logo = (View) ((View) findViewById(R.id.title_text).getParent()).getParent();
-        if (actions.getLayoutParams() instanceof android.widget.FrameLayout.LayoutParams
+        View actions = parentOf(mSearchOrbView);
+        View logo = parentOf(parentOf(findViewById(R.id.title_text)));
+        if (actions != null && logo != null && actions.getLayoutParams() instanceof android.widget.FrameLayout.LayoutParams
                 && logo.getLayoutParams() instanceof android.widget.FrameLayout.LayoutParams) {
             ((android.widget.FrameLayout.LayoutParams) actions.getLayoutParams()).gravity = android.view.Gravity.END | android.view.Gravity.CENTER_VERTICAL;
             ((android.widget.FrameLayout.LayoutParams) logo.getLayoutParams()).gravity = android.view.Gravity.START | android.view.Gravity.CENTER_VERTICAL;
@@ -225,6 +217,11 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
         if (account instanceof SearchOrbView) {
             ((SearchOrbView) account).setOrbColors(flat);
         }
+    }
+
+    /** The layout may differ per variant (ldrtl, tv): never assume the parent chain. */
+    private static View parentOf(View view) {
+        return view != null && view.getParent() instanceof View ? (View) view.getParent() : null;
     }
 
     private void setupButtons() {
@@ -273,8 +270,6 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
         mIsLanguageViewEnabled = mainUIData.isTopButtonEnabled(MainUIData.TOP_BUTTON_CHANGE_LANGUAGE);
         mIsGlobalClockEnabled = GeneralData.instance(getContext()).isGlobalClockEnabled();
 
-        // Phone: search lives in the bottom bar, the clock is in the status bar
-        boolean phone = PhoneNavBar.isPhone(getContext());
         mSearchOrbView.setVisibility(mIsSearchOrbEnabled ? View.VISIBLE : View.GONE);
         mAccountView.setVisibility(mIsAccountViewEnabled ? View.VISIBLE : View.GONE);
         mLanguageView.setVisibility(mIsLanguageViewEnabled ? View.VISIBLE : View.GONE);

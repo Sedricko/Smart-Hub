@@ -187,11 +187,7 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
 
     @Override
     public void setEndScreenVideos(List<Video> videos) {
-        mEndScreenVideos = videos;
-
-        if (mEndScreen != null) {
-            mEndScreen.hide();
-        }
+        mEndScreenVideos = videos; // the next 250 ms tick shows or hides the cards: no flicker when the same list is re-sent
     }
     private final Runnable mEndScreenTick = new Runnable() {
         @Override
@@ -206,7 +202,7 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
         }
     };
 
-    /** Last 20 seconds: two suggested videos on the left (YouTube TV end screen). */
+    /** Shows the cards the channel owner chose (end screen and info cards) while their time window is open. */
     private void updateEndScreen() {
         if (mEndScreen == null || mExoPlayerController == null || getVideo() == null) {
             return;
@@ -225,7 +221,7 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
         if (mEndScreenVideos != null) {
             long pos = getPositionMs();
             for (Video v : mEndScreenVideos) {
-                if (pos >= v.endScreenStartMs && pos <= v.endScreenEndMs && picks.size() < 2) {
+                if (pos >= v.endScreenStartMs && pos <= v.endScreenEndMs && picks.size() < EndScreenView.MAX_CARDS) {
                     picks.add(v);
                 }
             }
@@ -297,6 +293,7 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
         // NOTE: don't move this into another place! Multiple components rely on it.
         mPlaybackPresenter.onViewResumed();
 
+        Utils.removeCallbacks(mEndScreenTick); // onResume may run twice: never double the ticks
         Utils.postDelayed(mEndScreenTick, 1_000);
 
         showHideWidgets(true); // PIP mode fix
@@ -323,41 +320,65 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
 
     /** @return true when the key was consumed by the end screen cards */
     public boolean onDispatchKeyEvent(KeyEvent event) {
-        if (mEndScreen == null || !mEndScreen.isShown2() || event.getAction() != KeyEvent.ACTION_DOWN || isOverlayShown()) {
+        int key = event.getKeyCode();
+
+        // the key-up of a key we consumed must not leak to the player
+        if (event.getAction() == KeyEvent.ACTION_UP && key == mConsumedKey) {
+            mConsumedKey = KeyEvent.KEYCODE_UNKNOWN;
+            return true;
+        }
+
+        if (event.getAction() != KeyEvent.ACTION_DOWN || mEndScreen == null || !mEndScreen.isVisible() || isOverlayShown()) {
             return false;
         }
 
-        int sel = mEndScreen.getSelected();
+        boolean consumed = handleEndScreenKey(key);
 
-        switch (event.getKeyCode()) {
+        if (consumed) {
+            mConsumedKey = key;
+        }
+
+        return consumed;
+    }
+
+    private int mConsumedKey = KeyEvent.KEYCODE_UNKNOWN;
+
+    /**
+     * Like YouTube TV: a press toward the cards (left) focuses the first one, up/down move, OK opens the focused
+     * one, right/back let go. Without a focused card every other key (OK included) keeps its normal job.
+     */
+    private boolean handleEndScreenKey(int key) {
+        int sel = mEndScreen.getSelected();
+        int last = mEndScreen.getCardCount() - 1;
+
+        if (sel < 0) {
+            if (key != KeyEvent.KEYCODE_DPAD_LEFT) {
+                return false;
+            }
+            mEndScreen.select(0);
+            return true;
+        }
+
+        switch (key) {
             case KeyEvent.KEYCODE_DPAD_LEFT:
+                return true; // already there: do not seek behind the cards
+            case KeyEvent.KEYCODE_DPAD_UP:
+                mEndScreen.select(Math.max(sel - 1, 0));
+                return true;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                mEndScreen.select(Math.min(sel + 1, last));
+                return true;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+            case KeyEvent.KEYCODE_BACK:
+                mEndScreen.select(-1);
+                return true;
             case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_ENTER:
-                if (sel < 0) {
-                    mEndScreen.select(0); // first press only focuses the cards, like YouTube
-                    return true;
-                }
-                if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_LEFT) {
-                    return true;
-                }
                 Video picked = mEndScreen.getSelectedVideo();
                 mEndScreen.hide();
                 if (picked != null) {
                     mPlaybackPresenter.onSuggestionItemClicked(picked);
                 }
-                return true;
-            case KeyEvent.KEYCODE_DPAD_UP:
-                if (sel < 0) return false;
-                mEndScreen.select(0);
-                return true;
-            case KeyEvent.KEYCODE_DPAD_DOWN:
-                if (sel < 0) return false;
-                mEndScreen.select(1);
-                return true;
-            case KeyEvent.KEYCODE_DPAD_RIGHT:
-            case KeyEvent.KEYCODE_BACK:
-                if (sel < 0) return false;
-                mEndScreen.select(-1);
                 return true;
             default:
                 return false;

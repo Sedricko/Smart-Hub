@@ -535,6 +535,11 @@
     <string name="enable_history">Habilitar histórico</string>
     <string name="clear_history">Limpar histórico</string>
     <string name="chapters">Capítulos</string>
+    <string name="settings_category_account">Conta e dispositivos</string>
+    <string name="settings_category_playback">Reprodução</string>
+    <string name="settings_category_app">App e interface</string>
+    <string name="settings_category_system">Sistema</string>
+    <string name="settings_category_other">Outros</string>
     <string name="end_screen_hint">Aperte ← para escolher um vídeo</string>
     <string name="card_multiline_subtitle">Legendas em múltiplas linhas</string>
     <string name="auto_frame_rate_modes">Modos suportados</string>

@@ -92,7 +92,8 @@ public class VideoCardPresenter extends LongClickPresenter {
         cardView.enableTitle(isTitleEnabled());
         cardView.enableContent(isContentEnabled());
         // TV follows the YouTube TV card: text straight on the page, no filled panel (phone keeps the panel for now)
-        mYouTubeStyle = !PhoneNavBar.isPhone(context);
+        // The white focus ring and light text assume a dark scheme: with a light scheme keep the classic card
+        mYouTubeStyle = !PhoneNavBar.isPhone(context) && ColorUtils.calculateLuminance(mDefaultBackgroundColor) < 0.5;
         cardView.setBackgroundColor(mYouTubeStyle ? Color.TRANSPARENT : mDefaultBackgroundColor); // background is temporarily visible during animations
         //if (VERSION.SDK_INT >= 23 && MainUIData.instance(context).isUiTweakEnabled(MainUIData.UI_TWEAK_ROUNDED_CORNERS)) {
         //    cardView.setForeground(ContextCompat.getDrawable(context, R.drawable.lb_card_outline));

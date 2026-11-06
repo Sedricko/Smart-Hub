@@ -16,6 +16,7 @@ import com.liskovsoft.smartyoutubetv2.tv.ui.browse.interfaces.Section;
 import com.liskovsoft.smartyoutubetv2.tv.ui.browse.interfaces.SettingsSection;
 import com.liskovsoft.smartyoutubetv2.tv.ui.browse.interfaces.VideoSection;
 import com.liskovsoft.smartyoutubetv2.tv.ui.browse.settings.SettingsGridFragment;
+import com.liskovsoft.smartyoutubetv2.tv.ui.browse.settings.SettingsRowsFragment;
 import com.liskovsoft.smartyoutubetv2.tv.ui.browse.video.MultiVideoGridFragment;
 import com.liskovsoft.smartyoutubetv2.tv.ui.browse.video.ShortsGridFragment;
 import com.liskovsoft.smartyoutubetv2.tv.ui.browse.video.VideoGridFragment;
@@ -29,9 +30,14 @@ public class BrowseSectionFragmentFactory extends BrowseSupportFragment.Fragment
     private int mSelectedItemIndex = -1;
     private Video mSelectedItem;
     private Runnable mOnSectionSelected;
+    private boolean mPhone;
 
     public interface OnSectionSelectedListener {
         void onSectionSelected(Row row);
+    }
+
+    public void setPhone(boolean phone) {
+        mPhone = phone;
     }
 
     public BrowseSectionFragmentFactory() {
@@ -71,7 +77,8 @@ public class BrowseSectionFragmentFactory extends BrowseSupportFragment.Fragment
                 fragment = new ShortsGridFragment();
                 break;
             case BrowseSection.TYPE_SETTINGS_GRID:
-                fragment = new SettingsGridFragment();
+                // TV: titled rows per group. Phone: the verified 3-column grid (items sorted by group)
+                fragment = mPhone ? new SettingsGridFragment() : new SettingsRowsFragment();
                 break;
             case BrowseSection.TYPE_MULTI_GRID:
                 fragment = new MultiVideoGridFragment();

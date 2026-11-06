@@ -105,18 +105,38 @@ public class VideoInfoService extends VideoInfoServiceBase {
             return;
         }
 
-        new Thread(() -> {
+        synchronized (this) {
+            if (videoId.equals(mCardsVideoId)) {
+                return; // already asked for this video (getVideoInfo is called more than once per playback)
+            }
+            mCardsVideoId = videoId;
+        }
+
+        CARDS_EXECUTOR.execute(() -> {
             try {
                 VideoInfo web = getVideoInfo(AppClient.WEB_DUMMY, videoId, clickTrackingParams);
                 if (web != null) {
                     target.setCards(web.getEndScreenElements(), web.getInfoCards());
+                } else {
+                    forgetCardsRequest(videoId); // let the next call try again
                 }
                 Log.d(TAG, "Cards from the web client: endscreen=%s info=%s", web != null && web.getEndScreenElements() != null ? web.getEndScreenElements().size() : 0,
                         web != null && web.getInfoCards() != null ? web.getInfoCards().size() : 0);
             } catch (Exception e) {
                 Log.e(TAG, "Can't get cards: %s", e.getMessage());
+                forgetCardsRequest(videoId);
             }
-        }, "EndScreenCards").start();
+        });
+    }
+
+    // One worker: a burst of getVideoInfo calls (zapping) must not spawn a thread per call
+    private static final java.util.concurrent.ExecutorService CARDS_EXECUTOR = java.util.concurrent.Executors.newSingleThreadExecutor();
+    private String mCardsVideoId;
+
+    private synchronized void forgetCardsRequest(String videoId) {
+        if (videoId.equals(mCardsVideoId)) {
+            mCardsVideoId = null;
+        }
     }
 
     private static boolean hasCards(VideoInfo info) {

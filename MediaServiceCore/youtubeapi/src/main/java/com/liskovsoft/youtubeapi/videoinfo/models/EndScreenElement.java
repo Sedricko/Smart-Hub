@@ -46,7 +46,7 @@ public class EndScreenElement implements EndScreenItem {
 
     @Override
     public String getThumbnailUrl() {
-        return mThumbnailUrl;
+        return mThumbnailUrl != null && mThumbnailUrl.startsWith("//") ? "https:" + mThumbnailUrl : mThumbnailUrl;
     }
 
     @Override

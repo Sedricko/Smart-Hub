@@ -2,7 +2,9 @@ package com.liskovsoft.smartyoutubetv2.tv.ui.browse;
 
 import android.app.UiModeManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -49,10 +51,24 @@ public class PhoneNavBar {
     private final float mD;
     private int mSelectedId = -1;
 
+    /**
+     * Phone/tablet = anything that is not a TV. Many TV boxes and projectors report a normal UI mode,
+     * so a device with the leanback feature or without a touchscreen is a TV too (it is driven by a remote).
+     */
     public static boolean isPhone(Context context) {
-        UiModeManager uiMode = (UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
-        return uiMode == null || uiMode.getCurrentModeType() != Configuration.UI_MODE_TYPE_TELEVISION;
+        if (sIsPhone == null) {
+            UiModeManager uiMode = (UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
+            PackageManager pm = context.getPackageManager();
+            boolean tv = (uiMode != null && uiMode.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION)
+                    || pm.hasSystemFeature("android.software.leanback")
+                    || !pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
+            sIsPhone = !tv;
+        }
+
+        return sIsPhone;
     }
+
+    private static Boolean sIsPhone; // does not change while the process lives
 
     private static boolean isMain(int id) {
         for (int main : MAIN_TABS) {
@@ -83,10 +99,12 @@ public class PhoneNavBar {
         mBar.addView(mBarItems, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         root.addView(mBar, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM));
-        mBar.setOnApplyWindowInsetsListener((v, insets) -> {
-            v.setPadding(0, 0, 0, insets.getSystemWindowInsetBottom());
-            return insets;
-        });
+        if (Build.VERSION.SDK_INT >= 20) { // WindowInsets API
+            mBar.setOnApplyWindowInsetsListener((v, insets) -> {
+                v.setPadding(0, 0, 0, insets.getSystemWindowInsetBottom());
+                return insets;
+            });
+        }
 
         mChipItems = new LinearLayout(context);
         mChipItems.setPadding((int) (12 * mD), 0, (int) (12 * mD), 0);
@@ -98,23 +116,32 @@ public class PhoneNavBar {
         chipsLp.topMargin = (int) (78 * mD);
         root.addView(mChips, chipsLp);
         // Sits right under the title row (logo and profile), below the status bar
-        mChips.setOnApplyWindowInsetsListener((v, insets) -> {
-            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) v.getLayoutParams();
-            int top = insets.getSystemWindowInsetTop() + (int) (78 * mD);
-            if (lp.topMargin != top) {
-                lp.topMargin = top;
-                v.setLayoutParams(lp);
-            }
-            return insets;
-        });
+        if (Build.VERSION.SDK_INT >= 20) {
+            mChips.setOnApplyWindowInsetsListener((v, insets) -> {
+                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) v.getLayoutParams();
+                int top = insets.getSystemWindowInsetTop() + (int) (78 * mD);
+                if (lp.topMargin != top) {
+                    lp.topMargin = top;
+                    v.setLayoutParams(lp);
+                }
+                return insets;
+            });
+        }
 
-        sections.registerObserver(new ObjectAdapter.DataObserver() {
-            @Override
-            public void onChanged() {
-                rebuild();
-            }
-        });
+        sections.registerObserver(mObserver);
         rebuild();
+    }
+
+    private final ObjectAdapter.DataObserver mObserver = new ObjectAdapter.DataObserver() {
+        @Override
+        public void onChanged() {
+            rebuild();
+        }
+    };
+
+    /** Call when the view goes away: the section adapter outlives it. */
+    public void release() {
+        mSections.unregisterObserver(mObserver);
     }
 
     public void setOnHeightChanged(OnSelect listener) {
@@ -122,6 +149,10 @@ public class PhoneNavBar {
     }
 
     public void select(int headerId) {
+        if (headerId == mSelectedId) {
+            return;
+        }
+
         mSelectedId = headerId;
         rebuild();
     }
@@ -135,10 +166,7 @@ public class PhoneNavBar {
             SectionHeaderItem header = (SectionHeaderItem) ((PageRow) mSections.get(i)).getHeaderItem();
             boolean active = header.getId() == mSelectedId;
             final int index = i;
-            View.OnClickListener click = v -> {
-                Log.d("PhoneNavBar", "tap section index=" + index + " id=" + header.getId() + " name=" + header.getName());
-                mListener.onSelect(index);
-            };
+            View.OnClickListener click = v -> mListener.onSelect(index);
 
             if (isMain((int) header.getId())) {
                 addTab(context, header.getResId(), header.getName(), active ? mAccent : mIdle, click);
@@ -155,6 +183,8 @@ public class PhoneNavBar {
         cell.setGravity(Gravity.CENTER);
         cell.setPadding(0, (int) (6 * mD), 0, (int) (6 * mD));
         cell.setOnClickListener(click);
+        cell.setFocusable(true);
+        cell.setSelected(color == mAccent);
         cell.setContentDescription(name);
 
         if (iconRes > 0) {
@@ -191,6 +221,8 @@ public class PhoneNavBar {
         bg.setColor(active ? mAccent : mBg);
         chip.setBackground(bg);
         chip.setOnClickListener(click);
+        chip.setFocusable(true);
+        chip.setSelected(active);
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int) (32 * mD));
         lp.setMarginEnd((int) (8 * mD));

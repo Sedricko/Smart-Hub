@@ -537,6 +537,11 @@
     <string name="enable_history">Enable history</string>
     <string name="clear_history">Clear history</string>
     <string name="chapters">Chapters</string>
+    <string name="settings_category_account">Account &amp; devices</string>
+    <string name="settings_category_playback">Playback</string>
+    <string name="settings_category_app">App &amp; interface</string>
+    <string name="settings_category_system">System</string>
+    <string name="settings_category_other">More</string>
     <string name="end_screen_hint">Press LEFT to choose a video</string>
     <string name="card_multiline_subtitle">Multiline subtitles</string>
     <string name="auto_frame_rate_modes">Supported modes</string>

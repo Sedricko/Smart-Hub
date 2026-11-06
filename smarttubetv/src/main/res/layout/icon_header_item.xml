@@ -14,7 +14,7 @@
         android:duplicateParentState="true"
         android:layout_width="28dp"
         android:layout_height="28dp"
-        android:contentDescription="@string/header_icon" />
+        android:importantForAccessibility="no" />
 
     <com.liskovsoft.smartyoutubetv2.tv.ui.widgets.marqueetextviewcompat.HeaderMarqueeTextViewCompat
         android:id="@+id/header_label"

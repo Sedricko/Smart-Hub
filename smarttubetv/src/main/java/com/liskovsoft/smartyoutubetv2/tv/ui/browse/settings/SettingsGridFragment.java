@@ -26,6 +26,7 @@ import com.liskovsoft.smartyoutubetv2.tv.ui.mod.fragments.GridFragment;
 import com.liskovsoft.smartyoutubetv2.tv.util.ViewUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SettingsGridFragment extends GridFragment implements SettingsSection {
@@ -60,7 +61,7 @@ public class SettingsGridFragment extends GridFragment implements SettingsSectio
     }
 
     private void setupEventListeners() {
-        setOnItemViewClickedListener(new ItemViewClickedListener());
+        setOnItemViewClickedListener(new SettingsItemClickListener(this));
     }
 
     private void setupAdapter() {
@@ -103,7 +104,9 @@ public class SettingsGridFragment extends GridFragment implements SettingsSectio
         clear();
 
         if (group != null) {
-            for (SettingsItem item : group.getItems()) {
+            List<SettingsItem> sorted = new ArrayList<>(group.getItems());
+            Collections.sort(sorted, (x, y) -> Integer.compare(x.category, y.category)); // stable: keeps the order inside a group
+            for (SettingsItem item : sorted) {
                 mSettingsAdapter.add(item);
             }
         }
@@ -115,39 +118,5 @@ public class SettingsGridFragment extends GridFragment implements SettingsSectio
 
     private GeneralData getGeneralData() {
         return GeneralData.instance(getContext());
-    }
-
-    private final class ItemViewClickedListener implements OnItemViewClickedListener {
-        @Override
-        public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
-                                  RowPresenter.ViewHolder rowViewHolder, Row row) {
-
-            if (item instanceof SettingsItem) {
-                String password = getGeneralData().getSettingsPassword();
-
-                if (password == null) {
-                    ((SettingsItem) item).onClick.run();
-                } else {
-                    SimpleEditDialog.showPassword(
-                            getContext(),
-                            getContext().getString(R.string.enter_settings_password),
-                            null,
-                            newValue -> {
-                                if (Utils.passwordMatch(password, newValue)) {
-                                    ((SettingsItem) item).onClick.run();
-                                    return true;
-                                }
-                                return false;
-                            });
-                }
-
-                // Close PIP inside Settings section
-                //if (PlaybackPresenter.instance(getContext()).isInPipMode()) {
-                //    PlaybackPresenter.instance(getContext()).forceFinish();
-                //}
-            } else {
-                Toast.makeText(getContext(), item.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 }

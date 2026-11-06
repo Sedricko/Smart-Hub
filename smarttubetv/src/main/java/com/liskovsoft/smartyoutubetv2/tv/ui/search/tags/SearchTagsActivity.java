@@ -14,7 +14,7 @@ public class SearchTagsActivity extends LeanbackActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_search_tags);
-        if (PhoneNavBar.isPhone(this)) {
+        if (PhoneNavBar.isPhone(this) && android.os.Build.VERSION.SDK_INT >= 20) { // WindowInsets API
             // Edge-to-edge (targetSdk 35): keep the search bar below the status bar
             findViewById(android.R.id.content).setOnApplyWindowInsetsListener((v, insets) -> {
                 v.setPadding(0, insets.getSystemWindowInsetTop(), 0, insets.getSystemWindowInsetBottom());

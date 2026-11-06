@@ -303,12 +303,7 @@ public class MainUISettingsPresenter extends BasePresenter<Void> {
                 },
                 mGeneralData.is24HourLocaleEnabled()));
 
-        options.add(UiOptionItem.from(getContext().getString(R.string.app_corner_clock),
-                option -> {
-                    mGeneralData.setGlobalClockEnabled(option.isSelected());
-                    mRestartApp = true;
-                },
-                mGeneralData.isGlobalClockEnabled()));
+        // The browse top bar has no clock anymore (YouTube style): only the player clock stays configurable.
 
         options.add(UiOptionItem.from(getContext().getString(R.string.player_corner_clock),
                 option -> mPlayerData.setGlobalClockEnabled(option.isSelected()),

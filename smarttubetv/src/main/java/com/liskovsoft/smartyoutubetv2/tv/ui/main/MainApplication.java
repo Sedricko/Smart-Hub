@@ -61,7 +61,9 @@ public class MainApplication extends MultiDexApplication implements Configuratio
         super.onCreate();
 
         // YouTube does not grow the focused card (phone has no focus highlight, TV draws a ring). Must run before any presenter is built.
-        com.liskovsoft.smartyoutubetv2.tv.util.ViewUtil.FOCUS_ZOOM_FACTOR = androidx.leanback.widget.FocusHighlight.ZOOM_FACTOR_NONE;
+        if (android.os.Build.VERSION.SDK_INT >= 23) { // older TVs have no ring: keep the zoom as the only focus cue
+            com.liskovsoft.smartyoutubetv2.tv.util.ViewUtil.FOCUS_ZOOM_FACTOR = androidx.leanback.widget.FocusHighlight.ZOOM_FACTOR_NONE;
+        }
 
         // ByeByeDPI fix
         // https://android-review.googlesource.com/c/platform/external/conscrypt/+/89408/

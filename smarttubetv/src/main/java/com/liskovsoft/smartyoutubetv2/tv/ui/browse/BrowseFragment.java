@@ -2,6 +2,7 @@ package com.liskovsoft.smartyoutubetv2.tv.ui.browse;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -166,6 +167,7 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
                     }
                 }
         );
+        mSectionFragmentFactory.setPhone(mPhone);
 
         getMainFragmentRegistry().registerFragment(PageRow.class, mSectionFragmentFactory);
     }
@@ -255,10 +257,12 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
                 () -> SearchPresenter.instance(getContext()).startSearch(null));
 
         // Edge-to-edge (targetSdk 35): content stays below the status bar and above the bottom bar
-        content.setOnApplyWindowInsetsListener((v, insets) -> {
-            v.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
-            return insets;
-        });
+        if (Build.VERSION.SDK_INT >= 20) { // WindowInsets API
+            content.setOnApplyWindowInsetsListener((v, insets) -> {
+                v.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
+                return insets;
+            });
+        }
         mNavBar.setOnHeightChanged(height -> {
             FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) content.getLayoutParams();
             if (lp.bottomMargin != height) {
@@ -477,6 +481,13 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
 
     @Override
     public void onDestroyView() {
+        if (mNavBar != null) {
+            mNavBar.release();
+            mNavBar = null;
+        }
+        if (mHandler != null) {
+            mHandler.removeCallbacksAndMessages(null); // delayed UI work must not run on a destroyed view
+        }
         mSectionFragmentFactory.cleanup();
 
         super.onDestroyView();

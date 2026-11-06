@@ -273,15 +273,25 @@ public class VideoLoaderController extends BasePlayerController {
                            });
     }
 
+    private final java.util.List<Runnable> mCardsRechecks = new ArrayList<>();
+
+    /** The web client answers after the playback client: look again a few times, and drop the old checks when the video changes. */
     private void resendEndScreenLater(MediaItemFormatInfo formatInfo, String videoId, long... delaysMs) {
+        for (Runnable old : mCardsRechecks) {
+            Utils.removeCallbacks(old);
+        }
+        mCardsRechecks.clear();
+
         for (long delay : delaysMs) {
-            Utils.postDelayed(() -> {
+            Runnable recheck = () -> {
                 PlaybackView player = getPlayer();
                 List<com.liskovsoft.mediaserviceinterfaces.data.EndScreenItem> items = formatInfo.getEndScreenItems();
                 if (player != null && getVideo() != null && videoId != null && videoId.equals(getVideo().videoId) && items != null && !items.isEmpty()) {
                     sendEndScreen(player, formatInfo);
                 }
-            }, delay);
+            };
+            mCardsRechecks.add(recheck);
+            Utils.postDelayed(recheck, delay);
         }
     }
 
@@ -330,6 +340,8 @@ public class VideoLoaderController extends BasePlayerController {
 
         getVideo().sync(formatInfo);
 
+        com.liskovsoft.smartyoutubetv2.common.exoplayer.other.DebugInfoManager.sCreatorCards = -1; // do not show the previous video's numbers
+        com.liskovsoft.smartyoutubetv2.common.exoplayer.other.DebugInfoManager.sCreatorCardWindows = null;
         sendEndScreen(player, formatInfo);
         resendEndScreenLater(formatInfo, getVideo().videoId, 4_000, 12_000, 30_000); // cards may arrive late
 
