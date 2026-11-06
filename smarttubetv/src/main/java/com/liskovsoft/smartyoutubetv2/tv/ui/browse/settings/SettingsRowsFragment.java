@@ -46,6 +46,12 @@ public class SettingsRowsFragment extends RowsSupportFragment implements Setting
     }
 
     @Override
+    public void setExpand(boolean expand) {
+        // Leanback hides the row titles while the side menu has the focus; the video rows already force this
+        super.setExpand(true);
+    }
+
+    @Override
     public void update(SettingsGroup group) {
         if (mRowsAdapter == null) {
             mPendingUpdates.add(group);
