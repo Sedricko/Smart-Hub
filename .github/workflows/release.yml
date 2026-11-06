@@ -14,6 +14,11 @@ on:
 permissions:
   contents: write
 
+# Two releases at once would delete each other's assets while the manifest points at them
+concurrency:
+  group: release-latest
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -74,19 +79,36 @@ jobs:
       # Fail before publishing anything if the APKs are not signed with the release key
       # (a debug-signed APK would never update over a release install, and the other way around).
       - name: Verify signatures and manifest
+        shell: bash # adds pipefail: the default 'bash -e' ignores a failing command in front of a pipe
         run: |
           D=smarttubetv/build/outputs/apk/stbeta/release
           AS=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)apksigner
           CODE=$(grep -m1 'versionCode' smarttubetv/build.gradle | awk '{print $2}')
           for f in "$D"/SmartHub_beta_*.apk; do
             echo "== $f"
-            "$AS" verify --print-certs "$f" | tee /tmp/cert.txt
+            "$AS" verify --print-certs "$f" > /tmp/cert.txt || { cat /tmp/cert.txt; echo "::error::$f does not verify"; exit 1; }
+            cat /tmp/cert.txt
             grep -qi "Android Debug" /tmp/cert.txt && { echo "::error::$f is signed with the debug key"; exit 1; }
           done
           grep -q "\"versionCode\": $CODE" "$D/smarthub.json" || { echo "::error::smarthub.json does not carry versionCode $CODE"; exit 1; }
           for abi in universal arm64-v8a armeabi-v7a; do
             [ -f "$D/SmartHub_beta_$(grep -m1 'versionName' smarttubetv/build.gradle | awk -F'"' '{print $2}')_$abi.apk" ] || { echo "::error::missing APK for $abi"; exit 1; }
           done
+          # Same key as the published build (else every installed copy refuses the update), and a newer versionCode
+          VER=$(grep -m1 'versionName' smarttubetv/build.gradle | awk -F'"' '{print $2}')
+          BASE="https://github.com/${GITHUB_REPOSITORY}/releases/download/latest"
+          if curl -fsL -o /tmp/published.apk "$BASE/SmartHub_beta_${VER}_universal.apk"; then
+            "$AS" verify --print-certs /tmp/published.apk > /tmp/old_cert.txt || true
+            "$AS" verify --print-certs "$D/SmartHub_beta_${VER}_universal.apk" > /tmp/new_cert.txt
+            OLD=$(grep -m1 'certificate SHA-256 digest' /tmp/old_cert.txt || true)
+            NEW=$(grep -m1 'certificate SHA-256 digest' /tmp/new_cert.txt || true)
+            [ -n "$NEW" ] && [ "$OLD" = "$NEW" ] || { echo "::error::signing key differs from the published build ($OLD vs $NEW)"; exit 1; }
+          fi
+          curl -fsL -o /tmp/published.json "$BASE/smarthub.json" || true
+          PUBLISHED=$(grep -m1 '"versionCode"' /tmp/published.json 2>/dev/null | tr -dc '0-9' || true)
+          if [ -n "$PUBLISHED" ] && [ "$CODE" -le "$PUBLISHED" ]; then
+            echo "::error::versionCode $CODE is not newer than the published $PUBLISHED (users would never get this build)"; exit 1
+          fi
           echo "OK: signed with the release key, manifest matches versionCode $CODE"
 
       - name: Keep the build as an artifact

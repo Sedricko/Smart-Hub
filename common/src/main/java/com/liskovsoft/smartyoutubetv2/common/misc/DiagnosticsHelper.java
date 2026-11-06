@@ -269,13 +269,18 @@ public final class DiagnosticsHelper {
         String result = HEADER_SECRETS.matcher(text).replaceAll("$1: [removido]");
         result = PARAM_SECRETS.matcher(result).replaceAll("$1[removido]");
         result = BEARER.matcher(result).replaceAll("Bearer [removido]");
+        result = JSON_SECRETS.matcher(result).replaceAll("$1\"[removido]\"");
+        result = EMAIL.matcher(result).replaceAll("[email removido]");
         result = LONG_TOKENS.matcher(result).replaceAll("[removido]");
         return result;
     }
 
     private static final Pattern HEADER_SECRETS = Pattern.compile("(?i)\\b(authorization|cookie|set-cookie)\\s*[:=]\\s*[^\\r\\n]+");
     private static final Pattern PARAM_SECRETS = Pattern.compile(
-            "(?i)([?&;\\s\"'](?:access_token|refresh_token|token|pot|po_token|sig|signature|sapisid|key|api_key|password|visitor_data|visitordata|client_secret|lsig)=)[^&\\s\"']+");
+            "(?i)([?&;\\s\"'](?:access_token|refresh_token|token|pot|po_token|sig|signature|sapisid|key|api_key|password|visitor_data|visitordata|client_secret|lsig|ip|ipbits)=)[^&\\s\"']+");
+    // "token":"abc" in JSON, and e-mail addresses (the user's own public IP rides in googlevideo urls as &ip=)
+    private static final Pattern JSON_SECRETS = Pattern.compile("(?i)(\"(?:access_token|refresh_token|token|pot|visitor_data|visitordata|password|authorization|cookie)\"\\s*:\\s*)\"[^\"]*\"");
+    private static final Pattern EMAIL = Pattern.compile("[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}");
     private static final Pattern BEARER = Pattern.compile("(?i)bearer\\s+[A-Za-z0-9._\\-]+");
     private static final Pattern LONG_TOKENS = Pattern.compile("[A-Za-z0-9_\\-]{60,}");
 

@@ -32,6 +32,8 @@ public class ErrorFixerController extends BasePlayerController implements OnLong
     private int mSabrErrorFixAttempts;
     private String mAudioErrorVideoId;
     private int mAudioErrorAttempts;
+    private long mAudioErrorLastMs;
+    private static final long AUDIO_ERROR_LOOP_WINDOW_MS = 60_000; // errors further apart than this are not a loop
 
     @Override
     public void onInit() {
@@ -302,11 +304,16 @@ public class ErrorFixerController extends BasePlayerController implements OnLong
         } else if (type == PlayerEventListener.ERROR_TYPE_RENDERER && rendererIndex == PlayerEventListener.RENDERER_INDEX_AUDIO) {
             // Audio sink refused the format. Seen on Shield: the fix below failed too and the player looped idle -> buffering -> error forever.
             String videoId = getVideo() != null ? getVideo().videoId : null;
-            if (!Helpers.equals(videoId, mAudioErrorVideoId)) {
+            long now = System.currentTimeMillis();
+            // A loop fires again within seconds. A new video, or an error long after the last one (HDMI hotplug, sink glitch), starts over:
+            // otherwise the 4th unrelated error of a long session would stop the player for good.
+            if (!Helpers.equals(videoId, mAudioErrorVideoId) || now - mAudioErrorLastMs > AUDIO_ERROR_LOOP_WINDOW_MS) {
                 mAudioErrorVideoId = videoId;
                 mAudioErrorAttempts = 0;
             }
+            mAudioErrorLastMs = now;
             mAudioErrorAttempts++;
+            // Kept for all videos on purpose: AAC is the format the Shield sink accepts (there is no per-video audio override)
             getPlayerData().setFormat(FormatItem.AUDIO_HQ_MP4A);
             // 1st: reload with AAC. 2nd: rebuild the whole player (fresh audio sink, what a reboot would do). Then stop and let the user pick a format.
             restartEngine = mAudioErrorAttempts > 1;

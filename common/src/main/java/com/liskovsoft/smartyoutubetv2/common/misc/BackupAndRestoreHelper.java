@@ -177,19 +177,41 @@ public class BackupAndRestoreHelper implements OnResult {
         File mediaDir = FileHelpers.getExternalMediaDirectory(mContext);
         File dataDir = new File(mediaDir, "data");
 
-        // Remove old data
-        if (dataDir.exists()) FileHelpers.delete(dataDir);
+        // Unpack beside the live data first: a wrong or corrupt zip must never cost the user the data he has
+        File staging = new File(mediaDir, "restore_tmp");
+        File previous = new File(mediaDir, "data.previous");
+        FileHelpers.delete(staging);
+        FileHelpers.delete(previous);
 
-        if (ZipHelper2.hasRootDir(tempZip, "data")) {
-            // Unpack ZIP with data folder
-            ZipHelper2.unzip(tempZip, mediaDir);
-        } else {
-            // Seems we've packed the contents of the data dir not data itself
-            ZipHelper2.unzip(tempZip, dataDir);
+        try {
+            if (!staging.mkdirs() || !ZipHelper2.unzip(tempZip, staging)) {
+                throw new IllegalStateException("The backup file is damaged or is not a backup");
+            }
+
+            // With the data folder inside the zip, or the contents of the data dir packed directly
+            File restored = ZipHelper2.hasRootDir(tempZip, "data") ? new File(staging, "data") : staging;
+            String[] content = restored.list();
+
+            if (!restored.isDirectory() || content == null || content.length == 0) {
+                throw new IllegalStateException("The backup file is empty");
+            }
+
+            // Swap, and put the old data back if the swap fails half way
+            if (dataDir.exists() && !dataDir.renameTo(previous)) {
+                throw new IllegalStateException("Can't replace the current data");
+            }
+            if (!restored.renameTo(dataDir)) {
+                if (previous.exists()) {
+                    previous.renameTo(dataDir);
+                }
+                throw new IllegalStateException("Can't put the restored data in place");
+            }
+
+            FileHelpers.delete(previous);
+            tempZip.delete();
+        } finally {
+            FileHelpers.delete(staging);
         }
-
-        // Delete the temporary ZIP
-        tempZip.delete();
     }
 
     private void unpackTempZip(Uri zipUri, Runnable onSuccess, OnError onError) {

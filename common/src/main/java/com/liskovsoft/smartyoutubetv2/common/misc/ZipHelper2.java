@@ -36,9 +36,11 @@ public class ZipHelper2 {
         }
     }
 
-    public static void unzip(File zipFile, File targetRoot) {
+    /** @return false when anything went wrong (corrupt zip, Zip Slip entry, disk full): the caller must not trust the result */
+    public static boolean unzip(File zipFile, File targetRoot) {
+        ZipInputStream zis = null;
         try {
-            ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
+            zis = new ZipInputStream(new FileInputStream(zipFile));
             String canonicalRoot = targetRoot.getCanonicalPath() + File.separator;
             ZipEntry entry;
             byte[] buffer = new byte[8192];
@@ -58,14 +60,24 @@ public class ZipHelper2 {
                 } else {
                     out.getParentFile().mkdirs();
                     FileOutputStream fos = new FileOutputStream(out);
-                    int len;
-                    while ((len = zis.read(buffer)) > 0) fos.write(buffer, 0, len);
-                    fos.close();
+                    try {
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) fos.write(buffer, 0, len);
+                    } finally {
+                        fos.close();
+                    }
                 }
                 zis.closeEntry();
             }
-            zis.close();
-        } catch (Exception e) { e.printStackTrace(); }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (zis != null) {
+                try { zis.close(); } catch (IOException ignored) { }
+            }
+        }
     }
 
     public static boolean hasRootDir(File zipFile, String rootDir) {

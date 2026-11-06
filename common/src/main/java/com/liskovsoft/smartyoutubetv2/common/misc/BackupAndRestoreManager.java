@@ -406,7 +406,12 @@ public class BackupAndRestoreManager implements MotherActivity.OnPermissions {
         if (files != null) {
             for (File file : files) {
                 if (file.getName().endsWith(".zip")) {
-                    mHelper.unpackTempZip(file);
+                    try {
+                        mHelper.unpackTempZip(file);
+                    } catch (RuntimeException e) {
+                        // a bad zip must not stop the app: the current data is untouched
+                        Log.e(TAG, "Skip the backup %s: %s", file.getName(), e.getMessage());
+                    }
                     // More than one zip file
                     //break;
                 }

@@ -134,6 +134,8 @@ public class AppUpdateChecker implements AppVersionCheckerListener, AppDownloade
     @Override
     public void onApkDownloaded(String path) {
         if (!checkApk(path)) {
+            // Tell the caller: otherwise the "checking" spinner never goes away and the user waits for nothing
+            mListener.onUpdateError(new IllegalStateException("The downloaded update is not valid"));
             return;
         }
 
